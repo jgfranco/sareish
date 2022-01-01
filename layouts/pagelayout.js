@@ -1,22 +1,31 @@
 
 import Link from 'next/link';
-import styles from '../styles/Layout.module.css';
+//mport styles from '../styles/Form.module.css';
+import Image from 'next/image';
 
 
 export default function PageLayout( { children }){
+    console.log(children)
     return (
-        <div className="flex bg-gray-200 just">
-            <div className="m-auto bg-slate-50 w-full sm:w-3/5 h-full pt-10">
-
+        <div className="flex flex-col bg-zinc-50 h-screen" >
+            <div className="mx-auto bg-white w-full sm:w-3/5 h-screen">
                 {/* nav bar */}
-                <div className='flex flex-row justify-between'>
-                    <div className=''>
+                <div className='flex flex-row justify-between my-3 mx-5 items-center'>
+                    <div className='flex gap-5'>
                         <Link href="/">Home</Link>
                         <Link href="/about">About</Link>
                     </div>
-                    <div className='flex flex-row mx-10'>
-                        <Link href="http://instagram.com/sareish">instagram</Link>
-                        <Link href="https://www.tiktok.com/@sareishh">tiktok</Link>
+                    <div className='flex gap-2'>
+                        <Link href ="http://instagram.com/sareish">
+                            <a>
+                                <Image src="/assets/instagram.svg" width={25} height={25}></Image>
+                            </a>
+                        </Link>
+                        <Link href="https://www.tiktok.com/@sareishh">
+                            <a>
+                                <Image src="/assets/tiktok.svg"  width={25} height={25}></Image>
+                            </a>
+                        </Link>    
                     </div>
                 </div>
                 {/* body of page */}

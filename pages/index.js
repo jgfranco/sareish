@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
-import PageLayout from '../layouts/pagelayout';
+import Layout from '../layouts/pagelayout';
 
 export default function Home( {links}) {
 
@@ -19,14 +19,14 @@ export default function Home( {links}) {
 
 
   return (
-    <PageLayout>
+    <Layout>
       <Head>
         <title>Home Page</title>
       </Head>
 
       {session ? User({ session, handleSignOut }) : Guest( {links} )}
 
-    </PageLayout>
+    </Layout>
   )
 }
 
@@ -39,7 +39,8 @@ function Guest({links}){
         <div className='flex flex-col justify-center '>  
           {links.map(link =>(
             <Link href={link.url} key={link.index}>
-              <div className='w-full bg-slate-200 py-4 my-3 rounded-full cursor-pointer'> 
+              <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
+                cursor-pointer border-2 border-rose-100 hover:border-rose-200 text-rose-950'> 
                 <p>{link.title}</p>
               </div>
             </Link>
