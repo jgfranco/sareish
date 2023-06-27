@@ -30,9 +30,11 @@ function Guest(){
     <main className="container mx-auto text-center py-20">
           <h3 className='text-4xl font-bold'>Guest Homepage</h3>
 
+          {/* 
           <div className='flex justify-center'>
             <Link href={'/login'}><a className='mt-5 px-10 py-1 rounded-sm bg-indigo-500 text-gray-50'>Sign In</a></Link>
           </div>
+          */}
       </main>
   )
 }
@@ -41,7 +43,7 @@ function Guest(){
 function User({ session, handleSignOut }){
   return(
     <main className="container mx-auto text-center py-20">
-          <h3 className='text-4xl font-bold'>Authorize User Homepage</h3>
+          <h3 className='text-4xl font-bold'>Authorized User Homepage</h3>
 
           <div className='details'>
             <h5>{session.user.name}</h5>
@@ -60,6 +62,9 @@ function User({ session, handleSignOut }){
 }
 
 
+/* 
+// this function is used to protect pages when there's not an authorized user logged in
+
 export async function getServerSideProps({ req }){
   const session = await getSession({ req })
 
@@ -75,4 +80,4 @@ export async function getServerSideProps({ req }){
   return {
     props: { session }
   }
-}
+} */
