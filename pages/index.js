@@ -1,20 +1,25 @@
 import Head from 'next/head'
-import Image from 'next/image'
+//import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
-import { useState } from 'react'
+//import { useState } from 'react'
 import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 //import Links from '../model/LinkSchema'
 import { stringify } from 'postcss'
+import Links from '../model/LinkSchema';
+import { loadGetInitialProps } from 'next/dist/shared/lib/utils';
 
-export default function Home() {
+export default function Home( {links}) {
 
   const { data: session } = useSession()
 
   function handleSignOut(){
     signOut()
   }
+
+  //const links = fetch('/api/auth/links')
+  //console.log(links)
 
 
   return (
@@ -23,18 +28,32 @@ export default function Home() {
         <title>Home Page</title>
       </Head>
 
-      {session ? User({ session, handleSignOut }) : Guest()}
+      {session ? User({ session, handleSignOut }) : Guest( {links} )}
     </div>
   )
 }
 
-// Guest
-function Guest(){
+// Guest 
+function Guest({links}){
   
   return (
     <main className="container mx-auto text-center py-20">
           <h3 className='text-4xl font-bold'>Guest Homepage</h3>
-          
+
+          <div className='flex flex-col justify-center '>  
+            {links.map(link =>(
+              
+  
+                  <Link href={link.url} key={link.index}>
+                    <div className='w-full bg-slate-300 py-4 my-3 rounded-md cursor-pointer'> 
+                      <p>{link.title}</p>
+                    </div>
+                  </Link>
+                
+              //<a href={link.url} key = {link.index} >{link.title}</a>
+            ))}
+          </div>
+
           {/* 
           <div className='flex justify-center'>
             <Link href={'/login'}><a className='mt-5 px-10 py-1 rounded-sm bg-indigo-500 text-gray-50'>Sign In</a></Link>
@@ -87,3 +106,30 @@ export async function getServerSideProps({ req }){
     props: { session }
   }
 } */
+
+export const getServerSideProps = async () =>{
+
+  try{
+    console.log("Connecting to Mongo");
+    await connectMongo();
+    console.log("Connected to Mongo");
+  
+    console.log("Fetching documents");
+    const links = await Links.find()
+    console.log("Documents fetched")
+
+    return {
+      props: {
+        links: JSON.parse(JSON.stringify(links)),
+      },
+    };
+
+
+  }
+  catch (error) {
+    console.log(error);
+    return {
+      notFound: true
+    }
+  }
+}
