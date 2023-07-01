@@ -1,14 +1,10 @@
 import Head from 'next/head'
-//import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
-//import { useState } from 'react'
 import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
-//import Links from '../model/LinkSchema'
-import { stringify } from 'postcss'
 import Links from '../model/LinkSchema';
-import { loadGetInitialProps } from 'next/dist/shared/lib/utils';
+import PageLayout from '../layouts/pagelayout';
 
 export default function Home( {links}) {
 
@@ -23,13 +19,14 @@ export default function Home( {links}) {
 
 
   return (
-    <div className={styles.container}>
+    <PageLayout>
       <Head>
         <title>Home Page</title>
       </Head>
 
       {session ? User({ session, handleSignOut }) : Guest( {links} )}
-    </div>
+
+    </PageLayout>
   )
 }
 
@@ -37,29 +34,19 @@ export default function Home( {links}) {
 function Guest({links}){
   
   return (
-    <main className="container mx-auto text-center py-20">
-          <h3 className='text-4xl font-bold'>Guest Homepage</h3>
+    
+      <section className="container mx-auto text-center py-20 w-4/5 sm:w-1/2">
+        <div className='flex flex-col justify-center '>  
+          {links.map(link =>(
+            <Link href={link.url} key={link.index}>
+              <div className='w-full bg-slate-200 py-4 my-3 rounded-full cursor-pointer'> 
+                <p>{link.title}</p>
+              </div>
+            </Link>
+          ))}
+        </div>      
+      </section>
 
-          <div className='flex flex-col justify-center '>  
-            {links.map(link =>(
-              
-  
-                  <Link href={link.url} key={link.index}>
-                    <div className='w-full bg-slate-300 py-4 my-3 rounded-md cursor-pointer'> 
-                      <p>{link.title}</p>
-                    </div>
-                  </Link>
-                
-              //<a href={link.url} key = {link.index} >{link.title}</a>
-            ))}
-          </div>
-
-          {/* 
-          <div className='flex justify-center'>
-            <Link href={'/login'}><a className='mt-5 px-10 py-1 rounded-sm bg-indigo-500 text-gray-50'>Sign In</a></Link>
-          </div>
-          */}
-      </main>
   )
   
 }
