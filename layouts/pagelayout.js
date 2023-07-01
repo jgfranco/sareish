@@ -7,6 +7,8 @@ export default function PageLayout( { children }){
     return (
         <div className="flex bg-gray-200 just">
             <div className="m-auto bg-slate-50 w-full sm:w-3/5 h-full pt-10">
+
+                {/* nav bar */}
                 <div className='flex flex-row justify-between'>
                     <div className=''>
                         <Link href="/">Home</Link>
@@ -17,11 +19,13 @@ export default function PageLayout( { children }){
                         <Link href="https://www.tiktok.com/@sareishh">tiktok</Link>
                     </div>
                 </div>
+                {/* body of page */}
                 <div className="right flex flex-col justify-evenly">
                     <div className="text-center py-4">
                         {children}
                     </div>
                 </div>
+                {/* add footer */}
             </div>
   
         </div>
