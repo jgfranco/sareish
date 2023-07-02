@@ -38,7 +38,7 @@ function Guest({links}){
           {links.map(link =>(
             <Link href={link.url} key={link.index}>
               <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
-                cursor-pointer border-2 border-rose-100 hover:border-rose-200 text-rose-950'> 
+                cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'> 
                 <p>{link.title}, {link._id}</p>
               </div>
             </Link>
