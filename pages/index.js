@@ -14,34 +14,32 @@ export default function Home( {links}) {
     signOut()
   }
 
-  //const links = fetch('/api/auth/links')
-  //console.log(links)
-
-
   return (
     <Layout>
       <Head>
         <title>Home Page</title>
       </Head>
-
       {session ? User({ session, handleSignOut }) : Guest( {links} )}
-
     </Layout>
   )
 }
 
 // Guest 
 function Guest({links}){
-  
+
+  // sort links by index
+  links = links.sort(function(a, b) {
+    return b.index - a.index;
+  });
+
   return (
-    
       <section className="container mx-auto text-center py-20 w-4/5 sm:w-1/2">
         <div className='flex flex-col justify-center '>  
           {links.map(link =>(
             <Link href={link.url} key={link.index}>
               <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
                 cursor-pointer border-2 border-rose-100 hover:border-rose-200 text-rose-950'> 
-                <p>{link.title}</p>
+                <p>{link.title}, {link._id}</p>
               </div>
             </Link>
           ))}
@@ -103,7 +101,7 @@ export const getServerSideProps = async () =>{
     console.log("Connected to Mongo");
   
     console.log("Fetching documents");
-    const links = await Links.find()
+    const links = await Links.find(); // {active:true} to bring only active links
     console.log("Documents fetched")
 
     return {

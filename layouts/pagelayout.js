@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 
 export default function PageLayout( { children }){
-    console.log(children)
+
     return (
         <div className="flex flex-col bg-zinc-50 h-screen" >
             <div className="mx-auto bg-white w-full sm:w-3/5 h-screen">
@@ -34,7 +34,10 @@ export default function PageLayout( { children }){
                         {children}
                     </div>
                 </div>
-                {/* add footer */}
+                {/* footer */}
+                <div className='absolute bottom-0 text-zinc-300'>
+                    © sareish.com
+                </div>
             </div>
   
         </div>
