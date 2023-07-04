@@ -1,25 +1,26 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+//import styles from '../styles/Home.module.css'
 import Link from 'next/link'
-import { getSession, useSession, signOut } from "next-auth/react"
+//import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 
 export default function Home( {links}) {
 
-  const { data: session } = useSession()
+  //const { data: session } = useSession()
 
-  function handleSignOut(){
+  /* function handleSignOut(){
     signOut()
-  }
+  } */
 
   return (
     <Layout>
       <Head>
         <title>Home Page</title>
       </Head>
-      {session ? User({ session, handleSignOut }) : Guest( {links} )}
+      {/* {session ? User({ session, handleSignOut }) : Guest( {links} )} */}
+      {Guest( {links})}
     </Layout>
   )
 }
@@ -51,7 +52,7 @@ function Guest({links}){
 }
 
 // Authorize User
-function User({ session, handleSignOut }){
+/* function User({ session, handleSignOut }){
   return(
     <main className="container mx-auto text-center py-20">
           <h3 className='text-4xl font-bold'>Authorized User Homepage</h3>
@@ -70,7 +71,7 @@ function User({ session, handleSignOut }){
           </div>
       </main>
   )
-}
+} */
 
 
 /* 
@@ -96,13 +97,13 @@ export async function getServerSideProps({ req }){
 export const getServerSideProps = async () =>{
 
   try{
-    console.log("Connecting to Mongo");
+    //console.log("Connecting to Mongo");
     await connectMongo();
-    console.log("Connected to Mongo");
+    //console.log("Connected to Mongo");
   
-    console.log("Fetching documents");
+    //console.log("Fetching documents");
     const links = await Links.find(); // {active:true} to bring only active links
-    console.log("Documents fetched")
+    //console.log("Documents fetched")
 
     return {
       props: {
