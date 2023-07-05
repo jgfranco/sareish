@@ -102,7 +102,7 @@ export const getServerSideProps = async () =>{
     //console.log("Connected to Mongo");
   
     //console.log("Fetching documents");
-    const links = await Links.find(); // {active:true} to bring only active links
+    const links = await Links.find({active: true}); // bring only active links
     //console.log("Documents fetched")
 
     return {

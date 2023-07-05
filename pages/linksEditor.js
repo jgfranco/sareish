@@ -5,6 +5,7 @@ import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
+import { HiOutlinePencil, HiOutlinePlusSm }  from 'react-icons/hi'
 
 export default function LinksEditor({links}){
     const { data: session } = useSession()
@@ -15,10 +16,10 @@ export default function LinksEditor({links}){
 
     return (
         <Layout>
-        <Head>
-            <title>Links Editor</title>
-        </Head>
-        {session ? User({ session, handleSignOut, links}) : Guest()}
+            <Head>
+                <title>Links Editor</title>
+            </Head>
+            {session ? User({ session, handleSignOut, links}) : Guest()}
         </Layout>
     )
 }
@@ -29,16 +30,29 @@ function User({ session, handleSignOut, links }){
         return b.index - a.index;
     });
 
+    function handleLinkClick(e, id){
+        e.preventDefault();
+        console.log("I've been clicked", id);
+    }
+
+    function handleAddClick(e){
+        e.preventDefault();
+        console.log('sdgasdg');
+    }
+
     return (
         <section className="container mx-auto text-center py-20 w-4/5 sm:w-1/2">
-            <div className='flex flex-col justify-center '>  
+            <div className='flex flex-col items-center'>
+                <div className='flex flex-col items-center justify-center align-center border-2 w-10 h-10 cursor-pointer rounded-full bg-zinc-50' onClick={(e)=> handleAddClick(e)}>
+                    <HiOutlinePlusSm />
+                </div>
                 {links.map(link =>(
-                <Link href={link.url} key={link.index}>
-                    <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
-                    cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'> 
-                    <p>{link.title}, {link._id}</p>
+                    <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full 
+                        cursor-pointer border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'> 
+                        <p className="px-4">title: {link.title} | url:{link.url} | active:{link.active}</p> 
+                        <span className='icon flex items-center px-4' onClick={(e) => handleLinkClick(e, link._id)}><HiOutlinePencil /></span>
                     </div>
-                </Link>
+            
                 ))}
             </div>  
             <main className="container mx-auto text-center py-20">
