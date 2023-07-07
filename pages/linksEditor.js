@@ -83,14 +83,25 @@ function User({ session, handleSignOut, links }){
               className={styles.input_text}
               onChange={(e)=>setCurrentLink({...currentLink, url : e.target.value})}
               /* {...formik.getFieldProps('email')} */
-              />
+            />
+            <p>active:
             <input 
               type="checkbox"
               name='active'
               placeholder='active'
               className={styles.input_text}
               checked={currentLink.active === 'true'}
-              onChange={(e)=>{setCurrentLink({...currentLink, active: e.target.value})}}
+              onChange={(e)=>{setCurrentLink({...currentLink, active: String(e.target.checked)})}}
+              /* {...formik.getFieldProps('email')} */
+            />
+            </p>
+            <input 
+              type="text"
+              name='index'
+              placeholder='index'
+              value={currentLink.index}
+              className={styles.input_text}
+              onChange={(e)=>setCurrentLink({...currentLink, index : e.target.value})}
               /* {...formik.getFieldProps('email')} */
             />
             <div className="input-button">
