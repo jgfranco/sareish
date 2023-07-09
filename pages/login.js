@@ -2,12 +2,11 @@ import Head from 'next/head'
 import Layout from '../layouts/authlayout'
 import Link from 'next/link'
 import styles from '../styles/Form.module.css';
-import Image from 'next/image'
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import { useState } from 'react';
 import { signIn, signOut } from "next-auth/react"
 import { useFormik } from 'formik';
-import login_validate from '../lib/validate';
+import loginValidate from '../lib/validate';
 import { useRouter } from 'next/router';
 
 
@@ -22,14 +21,9 @@ export default function Login(){
             email: '',
             password: ''
         },
-        validate : login_validate,
+        validate : loginValidate,
         onSubmit
     })
-
-    /**
-     * haleykennedy@gmail.com
-     * admin123
-     */
 
     async function onSubmit(values){
 
@@ -79,7 +73,7 @@ export default function Login(){
                         </span>
                     
                     </div>
-                    {/* {formik.errors.email && formik.touched.email ? <span className='text-rose-500'>{formik.errors.email}</span> : <></>} */}
+                    {formik.errors.email && formik.touched.email ? <span className='text-rose-500'>{formik.errors.email}</span> : <></>}
 
                     <div className={`${styles.input_group} ${formik.errors.password && formik.touched.password ? 'border-rose-600' : ''}`}>
                         <input 
@@ -94,8 +88,7 @@ export default function Login(){
                         </span>
                     
                     </div>
-
-                    {/* {formik.errors.password && formik.touched.password ? <span className='text-rose-500'>{formik.errors.password}</span> : <></>} */}
+                    {formik.errors.password && formik.touched.password ? <span className='text-rose-500'>{formik.errors.password}</span> : <></>}
                     {/* login buttons */}
                     <div className="input-button">
                         <button type='submit' className={styles.button}>

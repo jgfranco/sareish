@@ -8,18 +8,11 @@ import Layout from '../layouts/pagelayout';
 
 export default function Home( {links}) {
 
-  //const { data: session } = useSession()
-
-  /* function handleSignOut(){
-    signOut()
-  } */
-
   return (
     <Layout>
       <Head>
         <title>Home Page</title>
       </Head>
-      {/* {session ? User({ session, handleSignOut }) : Guest( {links} )} */}
       {Guest( {links})}
     </Layout>
   )
@@ -40,7 +33,7 @@ function Guest({links}){
             <Link href={link.url} key={link.index}>
               <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
                 cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'> 
-                <p>{link.title}, {link._id}</p>
+                <p>{link.title}</p>
               </div>
             </Link>
           ))}
@@ -51,48 +44,6 @@ function Guest({links}){
   
 }
 
-// Authorize User
-/* function User({ session, handleSignOut }){
-  return(
-    <main className="container mx-auto text-center py-20">
-          <h3 className='text-4xl font-bold'>Authorized User Homepage</h3>
-
-          <div className='details'>
-            <h5>{session.user.name}</h5>
-            <h5>{session.user.email}</h5>
-          </div>
-
-          <div className="flex justify-center">
-            <button onClick={handleSignOut} className='mt-5 px-10 py-1 rounded-sm bg-indigo-500'>Sign Out</button>
-          </div>
-
-          <div className='flex justify-center'>
-            <Link href={'/profile'}><a className='mt-5 px-10 py-1 rounded-sm bg-indigo-500 text-gray-50'>Profile Page</a></Link>
-          </div>
-      </main>
-  )
-} */
-
-
-/* 
-// this function is used to protect pages when there's not an authorized user logged in
-
-export async function getServerSideProps({ req }){
-  const session = await getSession({ req })
-
-  if(!session){
-    return {
-      redirect : {
-        destination: '/login',
-        permanent: false
-      }
-    }
-  }
-
-  return {
-    props: { session }
-  }
-} */
 
 export const getServerSideProps = async () =>{
 

@@ -1,13 +1,14 @@
 import Head from 'next/head'
 import styles from '../styles/Form.module.css'
-import Link from 'next/link'
 import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
-import { HiOutlinePencilAlt, HiOutlinePlusSm, HiOutlineXCircle, HiOutlineCloudUpload}  from 'react-icons/hi'
+import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCloudUpload}  from 'react-icons/hi'
 import { useState } from 'react';
-import { set } from 'mongoose';
+import { useFormik } from 'formik';
+import { linkValidate } from '../lib/validate';
+import { useRouter } from 'next/router';
 
 export default function LinksEditor({links}){
     
@@ -22,7 +23,7 @@ export default function LinksEditor({links}){
       <Head>
           <title>Links Editor</title>
       </Head>
-      {session ? User({ session, handleSignOut, links}) : Guest()}
+      {session ? User({ session, handleSignOut, links}) : <p>Restricted Access</p>}
     </Layout>
   )
 }
@@ -31,8 +32,21 @@ function User({ session, handleSignOut, links }){
 
   const [showAddLink, setShowAddLink] = useState(false);
   const [showEditLink, setShowEditLink] = useState(false);
-  const [currentLink, setCurrentLink] = useState(null)
+  //const [currentLink, setCurrentLink] = useState(null)
+  const router = useRouter();
   
+  // formik Hook
+  const formik = useFormik({
+    initialValues: {
+        title : '',
+        url: '',
+        active: 'true',
+        index: links.length
+    },
+    validate: linkValidate,
+    onSubmit
+  })   
+
   // sort links descending
   links = links.sort(function(a, b) {
       return b.index - a.index;
@@ -41,26 +55,64 @@ function User({ session, handleSignOut, links }){
   // edit link handlers
   function handleEditLink(e, link){
     e.preventDefault();
-    setCurrentLink(link)
+    //setCurrentLink(link)
+    formik.values.title = link.title;
+    formik.values.url = link.url;
+    formik.values.active = link.active;
+    formik.values.index = link.index;
     setShowEditLink(true);
   }
   function handleCancel(e){
     e.preventDefault();
     if (showEditLink) setShowEditLink(false);
-    if (showAddLink) setShowAddLink(false)
-    
+    if (showAddLink) setShowAddLink(false);
   }
 
   // add link handlers
   function handleAddLink(e){
     e.preventDefault();
-    setCurrentLink({...currentLink, active: 'true', url:'', title:'', index: links.length})
-    setShowAddLink(true)
+    //setCurrentLink({...currentLink, active: 'true', url:'', title:'', index: links.length})
+    formik.values.title = '';
+    formik.values.url = '';
+    formik.values.active = 'true';
+    formik.values.index = links.length;
+    setShowAddLink(true);
   }
   
-  function handleFormSubmit(e){
-    e.preventDefault()
-    console.log("form submitted")
+  async function onSubmit(values){
+    console.log("form submitted with these values", values)
+
+    // add a new link
+    if (showAddLink){
+      console.log("adding  new link to database");
+
+      // add to database
+      const options = {
+        method: "POST",
+        headers : { 'Content-Type': 'application/json'},
+        body: JSON.stringify(values)
+      }
+      await fetch('http://localhost:3000/api/auth/links', options)
+        .then(res => res.json())
+        .then((data) => {
+            if(data) router.push('/linksEditor')
+      })
+      
+      // hide module after a succesfull addition
+      setShowAddLink(false);
+      
+    }
+
+
+    // edit a link
+    if (showEditLink){
+      console.log("updating link in database");
+
+      // update link in database
+
+      // hide module after a succesfull update
+      setShowEditLink(false);
+    }
   }
 
   
@@ -69,7 +121,7 @@ function User({ session, handleSignOut, links }){
           <div className='flex flex-col'>
               {showAddLink || showEditLink
                   ?
-                  <form onSubmit={(e)=>handleFormSubmit(e)}>
+                  <form onSubmit={formik.handleSubmit}>
                     <div className='grid grid-cols-4 gap-4'>
                       <div className='col-span-4'>
                         <div className='flex flex-col w-fu  ll'>
@@ -82,39 +134,38 @@ function User({ session, handleSignOut, links }){
                           type="text"
                           name='title'
                           placeholder='title'
-                          value={currentLink.title}
                           className={styles.input_text}
-                          onChange={(e)=>setCurrentLink({...currentLink, title : e.target.value})}
-                          /* {...formik.getFieldProps('email')} */
+                          /* value={currentLink.title}
+                          onChange={(e)=>setCurrentLink({...currentLink, title : e.target.value})} */
+                          {...formik.getFieldProps('title')} 
                         />
+                      {formik.errors.title && formik.touched.title ? <span className='text-rose-500'>{formik.errors.title}</span> : <></>} 
                       </div>
                       <div className='col-span-4'>
                         <input 
                           type="text"
                           name='url'
                           placeholder='url'
-                          value={currentLink.url}
                           className={styles.input_text}
-                          onChange={(e)=>setCurrentLink({...currentLink, url : e.target.value})}
-                          /* {...formik.getFieldProps('email')} */
+                          /* value={currentLink.url}
+                          onChange={(e)=>setCurrentLink({...currentLink, url : e.target.value})} */
+                          {...formik.getFieldProps('url')}
                         />
+                      {formik.errors.url && formik.touched.url ? <span className='text-rose-500'>{formik.errors.url}</span> : <></>} 
                       </div>
-                      {showEditLink 
-                        ?
                         <div className='col-span-4'>
                           <input 
                             type="text"
                             name='index'
                             placeholder='index'
-                            value={currentLink.index}
                             className={styles.input_text}
-                            onChange={(e)=>setCurrentLink({...currentLink, index : e.target.value})}
-                            /* {...formik.getFieldProps('email')} */
+                            readOnly={showAddLink}
+                            /* value={currentLink.index}
+                            
+                            onChange={(e)=>setCurrentLink({...currentLink, index : e.target.value})} */
+                            {...formik.getFieldProps('index')} 
                           />
-                        </div>
-                        :
-                        <></>
-                      }
+                        </div>  
                       <div><span>active:</span></div>
                       <div className='col-span-3'>
                         <input 
@@ -122,9 +173,9 @@ function User({ session, handleSignOut, links }){
                           name='active'
                           placeholder='active'
                           className={styles.input_text}
-                          checked={currentLink.active === 'true'}
-                          onChange={(e)=>{setCurrentLink({...currentLink, active: String(e.target.checked)})}}
-                          /* {...formik.getFieldProps('email')} */
+                          checked={formik.values.active === 'true'}
+                          /*onChange={(e)=>{setCurrentLink({...currentLink, active: String(e.target.checked)})}} */
+                          {...formik.getFieldProps('active')}
                         />
                       </div>
                       <div className='col-span-4'>
@@ -138,7 +189,7 @@ function User({ session, handleSignOut, links }){
                   :
                   <div className='flex flex-col w-full'>
                     <div className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full' onClick={(e)=> handleAddLink(e)}>
-                      <HiOutlinePlusSm  size={25}/>
+                      <HiOutlinePlusCircle  size={25}/>
                     </div>
                   </div>
               }
@@ -170,37 +221,37 @@ function User({ session, handleSignOut, links }){
 
 export const getServerSideProps = async ({req}) =>{
 
-    try{
-        //console.log("Connecting to Mongo");
-        await connectMongo();
-        //console.log("Connected to Mongo");
-        
-        //console.log("Fetching documents");
-        const links = await Links.find(); // {active:true} to bring only active links
-        //console.log("Documents fetched")
+  try{
+      //console.log("Connecting to Mongo");
+      await connectMongo();
+      //console.log("Connected to Mongo");
+      
+      //console.log("Fetching documents");
+      const links = await Links.find(); // {active:true} to bring only active links
+      //console.log("Documents fetched")
 
-        const session = await getSession({ req })
+      const session = await getSession({ req })
 
-        if(!session){
-            return {
-                redirect : {
-                    destination : "/login",
-                    premanent: false
-                }
-            }
-        }
-  
-        return {
-            props: {
-                links: JSON.parse(JSON.stringify(links)),
-                session: session
-            },
-        };
-    }
-    catch (error) {
-        console.log(error);
-        return {
-            notFound: true
-        }
-    }
+      if(!session){
+          return {
+              redirect : {
+                  destination : "/login",
+                  premanent: false
+              }
+          }
+      }
+
+      return {
+          props: {
+              links: JSON.parse(JSON.stringify(links)),
+              session: session
+          },
+      };
+  }
+  catch (error) {
+      console.log("this error:",error);
+      return {
+          notFound: true
+      }
+  }
 }
