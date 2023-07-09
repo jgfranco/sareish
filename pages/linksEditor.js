@@ -40,7 +40,7 @@ function User({ session, handleSignOut, links }){
     initialValues: {
         title : '',
         url: '',
-        active: 'true',
+        active: true,
         index: links.length
     },
     validate: linkValidate,
@@ -54,13 +54,16 @@ function User({ session, handleSignOut, links }){
 
   // edit link handlers
   function handleEditLink(e, link){
+    console.log(link.active)
     e.preventDefault();
     //setCurrentLink(link)
+    formik.values._id = link._id
     formik.values.title = link.title;
     formik.values.url = link.url;
-    formik.values.active = link.active;
+    formik.values.active = link.active=== 'true';
     formik.values.index = link.index;
     setShowEditLink(true);
+    
   }
   function handleCancel(e){
     e.preventDefault();
@@ -74,7 +77,7 @@ function User({ session, handleSignOut, links }){
     //setCurrentLink({...currentLink, active: 'true', url:'', title:'', index: links.length})
     formik.values.title = '';
     formik.values.url = '';
-    formik.values.active = 'true';
+    formik.values.active = true;
     formik.values.index = links.length;
     setShowAddLink(true);
   }
@@ -109,7 +112,16 @@ function User({ session, handleSignOut, links }){
       console.log("updating link in database");
 
       // update link in database
-
+      const options = {
+        method: "PATCH",
+        headers : { 'Content-Type': 'application/json'},
+        body: JSON.stringify(values)
+      }
+      await fetch('http://localhost:3000/api/auth/links', options)
+        .then(res => res.json())
+        .then((data) => {
+            if(data) router.push('/linksEditor')
+      })
       // hide module after a succesfull update
       setShowEditLink(false);
     }
@@ -173,8 +185,6 @@ function User({ session, handleSignOut, links }){
                           name='active'
                           placeholder='active'
                           className={styles.input_text}
-                          checked={formik.values.active === 'true'}
-                          /*onChange={(e)=>{setCurrentLink({...currentLink, active: String(e.target.checked)})}} */
                           {...formik.getFieldProps('active')}
                         />
                       </div>
