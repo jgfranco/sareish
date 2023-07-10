@@ -54,13 +54,12 @@ function User({ session, handleSignOut, links }){
 
   // edit link handlers
   function handleEditLink(e, link){
-    console.log(link.active)
     e.preventDefault();
     //setCurrentLink(link)
     formik.values._id = link._id
     formik.values.title = link.title;
     formik.values.url = link.url;
-    formik.values.active = link.active=== 'true';
+    link.active === 'true' ? formik.values.active = true : formik.values.active = false;
     formik.values.index = link.index;
     setShowEditLink(true);
     
@@ -147,8 +146,6 @@ function User({ session, handleSignOut, links }){
                           name='title'
                           placeholder='title'
                           className={styles.input_text}
-                          /* value={currentLink.title}
-                          onChange={(e)=>setCurrentLink({...currentLink, title : e.target.value})} */
                           {...formik.getFieldProps('title')} 
                         />
                       {formik.errors.title && formik.touched.title ? <span className='text-rose-500'>{formik.errors.title}</span> : <></>} 
@@ -159,8 +156,6 @@ function User({ session, handleSignOut, links }){
                           name='url'
                           placeholder='url'
                           className={styles.input_text}
-                          /* value={currentLink.url}
-                          onChange={(e)=>setCurrentLink({...currentLink, url : e.target.value})} */
                           {...formik.getFieldProps('url')}
                         />
                       {formik.errors.url && formik.touched.url ? <span className='text-rose-500'>{formik.errors.url}</span> : <></>} 
@@ -172,19 +167,15 @@ function User({ session, handleSignOut, links }){
                             placeholder='index'
                             className={styles.input_text}
                             readOnly={showAddLink}
-                            /* value={currentLink.index}
-                            
-                            onChange={(e)=>setCurrentLink({...currentLink, index : e.target.value})} */
                             {...formik.getFieldProps('index')} 
                           />
                         </div>  
-                      <div><span>active:</span></div>
+                      <div><label for="active">active:</label></div>
                       <div className='col-span-3'>
                         <input 
                           type="checkbox"
                           name='active'
-                          placeholder='active'
-                          className={styles.input_text}
+                          checked={formik.values.active}
                           {...formik.getFieldProps('active')}
                         />
                       </div>
