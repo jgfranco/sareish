@@ -94,7 +94,7 @@ function User({ session, handleSignOut, links }){
         headers : { 'Content-Type': 'application/json'},
         body: JSON.stringify(values)
       }
-      await fetch('http://localhost:3000/api/auth/links', options)
+      await fetch('/api/auth/links', options)
         .then(res => res.json())
         .then((data) => {
             if(data) router.push('/linksEditor')
@@ -115,7 +115,7 @@ function User({ session, handleSignOut, links }){
         headers : { 'Content-Type': 'application/json'},
         body: JSON.stringify(values)
       }
-      await fetch('http://localhost:3000/api/auth/links', options)
+      await fetch('/api/auth/links', options)
         .then(res => res.json())
         .then((data) => {
             if(data) router.push('/linksEditor')
