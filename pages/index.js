@@ -28,11 +28,12 @@ function Guest({links}){
   });
 
   return (
-      <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">
+      <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-screen">
         <div className="mb-8"> 
           <Image className='rounded-full' src='/assets/profileSareish.jpeg' width={120} height={120}></Image>
         </div>
-        <div className='flex flex-col justify-center '>  
+        <h1>under construction</h1>
+        {/* <div className='flex flex-col justify-center '>  
           {links.map(link =>(
             <Link href={link.url} key={link.index}>
               <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
@@ -41,7 +42,7 @@ function Guest({links}){
               </div>
             </Link>
           ))}
-        </div>      
+        </div>*/}   
       </section>
 
   )
