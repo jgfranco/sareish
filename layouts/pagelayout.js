@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { HiOutlineHome } from 'react-icons/hi'
 
 export default function PageLayout( { children }){
 
@@ -11,7 +12,7 @@ export default function PageLayout( { children }){
           <div className='flex flex-row justify-between my-2 mx-5 items-center'>
             <div className='flex gap-0'>
               <div className='p-2 hover:bg-zinc-50 text-zinc-600'>
-                <Link href="/" >Home</Link>
+                <Link href="/">Home</Link>
               </div>
               {/*   <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/about">About</Link>

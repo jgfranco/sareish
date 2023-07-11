@@ -5,6 +5,7 @@ import Link from 'next/link'
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
+import Image from 'next/image';
 
 export default function Home( {links}) {
 
@@ -27,7 +28,10 @@ function Guest({links}){
   });
 
   return (
-      <section className="container mx-auto text-center py-20 w-4/5 sm:w-1/2">
+      <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">
+        <div className="mb-8"> 
+          <Image className='rounded-full' src='/assets/profileSareish.jpeg' width={120} height={120}></Image>
+        </div>
         <div className='flex flex-col justify-center '>  
           {links.map(link =>(
             <Link href={link.url} key={link.index}>
