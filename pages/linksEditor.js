@@ -4,7 +4,7 @@ import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
-import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCloudUpload}  from 'react-icons/hi'
+import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout}  from 'react-icons/hi'
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import { linkValidate } from '../lib/validate';
@@ -182,7 +182,7 @@ function User({ session, handleSignOut, links }){
                       <div className='col-span-4'>
                         <div className='flex flex-col w-full'>
                           <button type= 'submit' className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full'>
-                            <HiOutlineCloudUpload size={25}/></button>
+                            <HiOutlineCheckCircle size={25}/></button>
                         </div>
                       </div>
                     </div>
@@ -192,18 +192,18 @@ function User({ session, handleSignOut, links }){
                     <div className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full' onClick={(e)=> handleAddLink(e)}>
                       <HiOutlinePlusCircle  size={25}/>
                     </div>
+                    {links.map(link =>(
+                      <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full 
+                          cursor-pointer border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'> 
+                          <p className="px-4">title: {link.title} | url:{link.url} | active:{link.active} | index: {link.index}</p> 
+                          <span className='icon flex items-center px-4' onClick={(e) => handleEditLink(e, link)}><HiOutlinePencilAlt size={25} /></span>
+                      </div>
+                    ))}  
                   </div>
               }
-              {links.map(link =>(
-                  <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full 
-                      cursor-pointer border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'> 
-                      <p className="px-4">title: {link.title} | url:{link.url} | active:{link.active} | index: {link.index}</p> 
-                      <span className='icon flex items-center px-4' onClick={(e) => handleEditLink(e, link)}><HiOutlinePencilAlt size={25} /></span>
-                  </div>
-              ))}    
           </div>  
-          <main className="container mx-auto text-center py-20">
-              <h4 className='text-4xl font-bold'>Authorized User</h4>
+          <div className="container mx-auto text-center py-20">
+              <h1 className=' text-2xl font-bold'>Authorized User</h1>
   
               <div className='details'>
                   <h5>{session.user.name}</h5>
@@ -211,9 +211,10 @@ function User({ session, handleSignOut, links }){
               </div>
   
               <div className="flex justify-center">
-                  <button onClick={handleSignOut} className='mt-5 px-10 py-1 rounded-sm bg-indigo-500'>Sign Out</button>
+                <span className='icon flex items-center p-2 cursor-pointer hover:text-sky-600' onClick={handleSignOut}>Sign out &nbsp; <HiOutlineLogout size={25}/></span>
+                {/* <button onClick={handleSignOut} className='mt-5 px-10 py-1 rounded-sm '>Sign Out: <HiOutlineLogout size={25}/></button> */}
               </div>
-          </main>    
+          </div>    
       </section>
   )
     
