@@ -1,8 +1,6 @@
 
 import Link from 'next/link';
-//mport styles from '../styles/Form.module.css';
 import Image from 'next/image';
-
 
 export default function PageLayout( { children }){
 
@@ -15,8 +13,11 @@ export default function PageLayout( { children }){
               <div className='p-2 hover:bg-zinc-50 text-zinc-600'>
                 <Link href="/" >Home</Link>
               </div>
-              <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
+              {/*   <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/about">About</Link>
+              </div> */}
+              <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
+                <Link href="/contact">Contact</Link>
               </div>
             </div>
             <div className='flex gap-3'>
