@@ -26,6 +26,7 @@ export default function Register(){
   async function onSubmit(values){
     const options = {
       method: "POST",
+      mode: 'no-cors',
       headers : { 'Content-Type': 'application/json'},
       body: JSON.stringify(values)
     }

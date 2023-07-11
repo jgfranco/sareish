@@ -91,6 +91,7 @@ function User({ session, handleSignOut, links }){
       // add to database
       const options = {
         method: "POST",
+        mode: 'no-cors',
         headers : { 'Content-Type': 'application/json'},
         body: JSON.stringify(values)
       }
@@ -112,6 +113,7 @@ function User({ session, handleSignOut, links }){
       // update link in database
       const options = {
         method: "PATCH",
+        mode: 'no-cors',
         headers : { 'Content-Type': 'application/json'},
         body: JSON.stringify(values)
       }
