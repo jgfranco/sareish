@@ -4,6 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  #__next {
+      @apply h-auto bg-red-500;
+  }
+  html,
+  body {
+      @apply h-auto;
+  }
+}
+
 * > *{
   font-family: 'Poppins', sans-serif;
 }
