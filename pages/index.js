@@ -44,11 +44,8 @@ function Guest({links}){
           ))}
         </div>*/}   
       </section>
-
   )
-  
 }
-
 
 export const getServerSideProps = async () =>{
 
