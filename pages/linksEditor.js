@@ -194,7 +194,7 @@ function User({ session, handleSignOut, links }){
               {links.map(link =>(
                 <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full 
                     cursor-pointer border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'> 
-                  <p className="px-4">{link.title} | {link.url.substring(0,20)}... | active:{link.active} | index: {link.index}</p> 
+                  <p className="px-4">{link.title} | {link.url.substring(0,20)}... | active:{link.active} | index: {link.index} | clicks: {link.clicks}</p> 
                   <span className='icon flex items-center px-4' onClick={(e) => handleEditLink(e, link)}><HiOutlinePencilAlt size={25} /></span>
                 </div>
               ))}  
