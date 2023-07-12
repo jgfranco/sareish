@@ -6,6 +6,9 @@ import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
+import { linkValidate } from '../lib/validate';
+import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
 
 export default function Home( {links}) {
 
@@ -21,11 +24,49 @@ export default function Home( {links}) {
 
 // Guest 
 function Guest({links}){
-
+  const router = useRouter();
   // sort links by index
   links = links.sort(function(a, b) {
     return b.index - a.index;
   });
+
+  const formik = useFormik({
+    initialValues: {
+        title : '',
+        url: '',
+        active: '',
+        index: ''
+    },
+    validate: linkValidate,
+    onSubmit
+  })   
+
+  function onLinkClick(e, link){
+    const newWindow = window.open(link.url, '_blank', 'noopener,noreferrer');
+    if (newWindow) newWindow.opener = null
+    e.preventDefault();
+    //setCurrentLink(link)
+    formik.values._id = link._id
+    formik.values.title = link.title;
+    formik.values.url = link.url;
+    link.active === 'true' ? formik.values.active = true : formik.values.active = false;
+    formik.values.index = link.index;
+    onSubmit(formik.values);
+
+  }
+
+  async function onSubmit(values){
+    const options = {
+      method: "PATCH",
+      headers : { 'Content-Type': 'application/json'},
+      body: JSON.stringify(values)
+    }
+    await fetch('/api/auth/clicks', options)
+      .then(res => res.json())
+      /* .then((data) => {
+        if (data) router.push("/")
+    }) */
+  }
 
   return (
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
@@ -35,12 +76,15 @@ function Guest({links}){
         {/* <h1>under construction</h1> */}
         <div className='flex flex-col justify-center '>  
           {links.map(link =>(
-            <Link href={link.url} key={link.index}>
-              <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
-                cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'> 
-                <p>{link.title}</p>
-              </div>
-            </Link>
+        
+            
+            <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
+              cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'
+              onClick={(e) =>onLinkClick(e, link)}
+              key={link.index}> 
+              <p>{link.title}</p>
+            </div>
+            
           ))}
         </div>
       </section>
