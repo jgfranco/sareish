@@ -70,7 +70,7 @@ function Guest({links}){
   return (
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
         <div className="mb-8"> 
-          <Image className='rounded-full' src='/assets/profileSareish.jpeg' width={120} height={120}></Image>
+          <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
         </div>
         {/* <h1>under construction</h1> */}
         <div className='flex flex-col justify-center '>  
