@@ -14,9 +14,9 @@ export default function PageLayout( { children }){
               <div className='p-2 hover:bg-zinc-50 text-zinc-600'>
                 <Link href="/">Home</Link>
               </div>
-              {/*   <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
+                 <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/about">About</Link>
-              </div> */}
+              </div> 
               <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/contact">Contact</Link>
               </div>
