@@ -14,7 +14,7 @@ export default function About() {
             <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
           </div>
           <div>
-                <h1 className='text-gray-800 text-4xl font-bold py-4'>About Me</h1>
+                <h1 className='text-gray-800 text-4xl font-bold py-4'>about me</h1>
                 <p className='mx-auto text-gray-600'> I&apos;ve always been passionate about bringing beauty and inspiration into people&apos;s lives. 
                 I find joy in styling spaces and encouraging others to embrace the romance of life by creating beautiful environments. 
                 Whether it&apos;s arranging furniture, choosing color palettes, or adding personal touches that make a space truly unique, 
