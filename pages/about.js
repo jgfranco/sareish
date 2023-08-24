@@ -15,13 +15,13 @@ export default function About() {
           </div>
           <div>
                 <h1 className='text-gray-800 text-4xl font-bold py-4'>About Me</h1>
-                <p className='mx-auto text-gray-600'> I've always been passionate about bringing beauty and inspiration into people's lives. 
+                <p className='mx-auto text-gray-600'> I&apos;ve always been passionate about bringing beauty and inspiration into people&apos;s lives. 
                 I find joy in styling spaces and encouraging others to embrace the romance of life by creating beautiful environments. 
-                Whether it's arranging furniture, choosing color palettes, or adding personal touches that make a space truly unique, 
+                Whether it&apos;s arranging furniture, choosing color palettes, or adding personal touches that make a space truly unique, 
                 I believe in the transformative power of a well-curated living space.</p>
                 <br/>
                 <p className='mx-auto text-gray-600'>Beyond that, I also have a knack for discovering and sharing products 
-                that enhance both my own and my audience's day-to-day lives. Collaborating with brands that align with my values, 
+                that enhance both my own and my audience&apos;s day-to-day lives. Collaborating with brands that align with my values, 
                 I aim to introduce solutions that elevate comfort and style.</p>
           </div>
           </section>
