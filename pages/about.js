@@ -11,7 +11,7 @@ export default function About() {
         {/* {session ? User({ session, handleSignOut }) : Guest( {links} )} */}
         <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-screen">
           <div className="mb-8"> 
-            <Image className='rounded-full' src='/assets/profileSareish.jpeg' width={120} height={120}></Image>
+            <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
           </div>
           <div>
                 <h1 className='text-gray-800 text-4xl font-bold py-4'>About Me</h1>
