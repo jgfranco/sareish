@@ -8,7 +8,11 @@ import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
 import { linkValidate } from '../lib/validate';
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
+//import { useRouter } from 'next/router';
+import PolaroidPhoto from '../components/polaroidPhoto';
+import {useState} from 'react';
+import LinksView from '../components/linksView';
+import PhotoView from '../components/photoView';
 
 export default function Home( {links}) {
 
@@ -17,14 +21,17 @@ export default function Home( {links}) {
       <Head>
         <title>Home Page</title>
       </Head>
-      {Guest( {links})}
+      {Guest( {links})}    
     </Layout>
   )
 }
 
 // Guest 
 function Guest({links}){
-  const router = useRouter();
+
+  const [view, setView] = useState("list");
+  //const router = useRouter();
+  
   // sort links by index
   links = links.sort(function(a, b) {
     return b.index - a.index;
@@ -73,17 +80,24 @@ function Guest({links}){
           <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
         </div>
         {/* <h1>under construction</h1> */}
-        <div className='flex flex-col justify-center '>  
-          {links.map(link =>(
-            <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
-              cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'
-              onClick={(e) =>onLinkClick(e, link)}
-              key={link.index}> 
-              <p>{link.title}</p>
-            </div>
-            
-          ))}
-        </div>
+        <button
+          onClick={() => setView("list")}
+          className={`px-4 py-2 rounded font-medium transition ${
+            view === "list" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          List View
+        </button>
+        <button
+          onClick={() => setView("photos")}
+          className={`px-4 py-2 rounded font-medium transition ${
+            view === "photos" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Photo View
+        </button>
+
+        {view === "list" ? <LinksView links={links} /> : <PhotoView links={links} />}
       </section>
   )
 }
