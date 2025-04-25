@@ -1,18 +1,14 @@
 import Head from 'next/head'
-//import styles from '../styles/Home.module.css'
-import Link from 'next/link'
-//import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
 import { linkValidate } from '../lib/validate';
 import { useFormik } from 'formik';
-//import { useRouter } from 'next/router';
-import PolaroidPhoto from '../components/polaroidPhoto';
 import {useState} from 'react';
 import LinksView from '../components/linksView';
 import PhotoView from '../components/photoView';
+import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
 
 export default function Home( {links}) {
 
@@ -30,13 +26,13 @@ export default function Home( {links}) {
 function Guest({links}){
 
   const [view, setView] = useState("list");
-  //const router = useRouter();
-  
+
   // sort links by index
   links = links.sort(function(a, b) {
     return b.index - a.index;
   });
 
+  /*
   const formik = useFormik({
     initialValues: {
         title : '',
@@ -61,6 +57,7 @@ function Guest({links}){
     onSubmit(formik.values);
   }
 
+
   async function onSubmit(values){
     const options = {
       method: "PATCH",
@@ -69,34 +66,23 @@ function Guest({links}){
     }
     await fetch('/api/auth/clicks', options)
       .then(res => res.json())
-      /* .then((data) => {
-        if (data) router.push("/")
-    }) */
   }
 
+  */
+
   return (
-      <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
+      <section className="container mx-auto text-center py-10 w-full sm:w-1/2 h-fit">
         <div className="mb-8"> 
           <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
         </div>
-        {/* <h1>under construction</h1> */}
-        <button
-          onClick={() => setView("list")}
-          className={`px-4 py-2 rounded font-medium transition ${
-            view === "list" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          List View
-        </button>
-        <button
-          onClick={() => setView("photos")}
-          className={`px-4 py-2 rounded font-medium transition ${
-            view === "photos" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          Photo View
-        </button>
-
+        <div className="flex justify-end">
+          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("list")}>
+            <HiOutlineViewList size={25}/>
+          </div>
+          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("photos")}>
+            <HiOutlineViewGrid size={25}/>
+          </div>
+        </div>
         {view === "list" ? <LinksView links={links} /> : <PhotoView links={links} />}
       </section>
   )
