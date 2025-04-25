@@ -11,7 +11,6 @@ import PhotoView from '../components/photoView';
 import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
 
 export default function Home( {links}) {
-
   return (
     <Layout>
       <Head>
@@ -24,7 +23,6 @@ export default function Home( {links}) {
 
 // Guest 
 function Guest({links}){
-
   const [view, setView] = useState("list");
 
   // sort links by index
@@ -57,7 +55,6 @@ function Guest({links}){
     onSubmit(formik.values);
   }
 
-
   async function onSubmit(values){
     const options = {
       method: "PATCH",
@@ -67,11 +64,10 @@ function Guest({links}){
     await fetch('/api/auth/clicks', options)
       .then(res => res.json())
   }
-
   */
 
   return (
-      <section className="container mx-auto text-center py-10 w-full sm:w-1/2 h-fit">
+      <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
         <div className="mb-8"> 
           <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
         </div>
@@ -89,7 +85,6 @@ function Guest({links}){
 }
 
 export const getServerSideProps = async () =>{
-
   try{
     //console.log("Connecting to Mongo");
     await connectMongo();
@@ -104,8 +99,6 @@ export const getServerSideProps = async () =>{
         links: JSON.parse(JSON.stringify(links)),
       },
     };
-
-
   }
   catch (error) {
     console.log(error);
