@@ -12,6 +12,10 @@ export default function Register(){
 
   const [show, setShow] = useState({ password: false, cpassword: false });
   const router = useRouter();
+
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
   const formik = useFormik({
       initialValues: {
           username : '',
@@ -45,7 +49,7 @@ export default function Register(){
       <section className='w-3/4 mx-auto flex flex-col gap-10'>
         <div className="title">
           <h1 className='text-gray-800 text-4xl font-bold py-4'>Register</h1>
-          <p className='w-3/4 mx-auto text-gray-400'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, officia?</p>
+          <p className='w-3/4 mx-auto text-gray-400'>{/*Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, officia?*/}</p>
         </div>
         {/* form */}
         <form className='flex flex-col gap-5' onSubmit={formik.handleSubmit}>
@@ -113,7 +117,7 @@ export default function Register(){
 
         {/* bottom */}
         <p className='text-center text-gray-400 '>
-          Have an account? <Link href={'/login'}><Link className='text-blue-700'>Sign In</Link></Link>
+          Have an account? <Link href={'/login'} className='text-blue-700'>Sign In</Link>
         </p>
       </section>
     </Layout>
