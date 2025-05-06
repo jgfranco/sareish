@@ -13,9 +13,7 @@ export default function Register(){
   const [show, setShow] = useState({ password: false, cpassword: false });
   const router = useRouter();
 
-  if (router.isFallback) {
-    return <div>Loading...</div>
-  }
+  
   const formik = useFormik({
       initialValues: {
           username : '',
@@ -41,6 +39,10 @@ export default function Register(){
     })
   }
 
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
+  
   return (
     <Layout>
       <Head>
