@@ -110,11 +110,9 @@ export default function Login(){
                 </form>
 
                 {/* bottom */}
-                {/* 
-                <p className='text-center text-gray-400 '>
+                {/* <p className='text-center text-gray-400 '>
                     dont have an account yet? <Link href={'/register'} className='text-blue-700'>Sign Up</Link>
-                </p>
-                */}
+                </p> */}
             </section>
 
         </Layout>
