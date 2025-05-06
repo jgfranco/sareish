@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function PolaroidPhoto({ src, alt, caption }) {
   return (
-    <div className="bg-white shadow-lg border border-gray-150 rounded-sm p-4 w-full text-center transform transition-transform hover:scale-105">
+    <div className="bg-white shadow-lg border border-gray-150 rounded-sm p-2 w-full text-center transform transition-transform hover:scale-105">
       <div className="bg-white pb-4 rounded-sm overflow-hidden">
         <div className="relative w-30 h-40 mx-auto">
           <Image

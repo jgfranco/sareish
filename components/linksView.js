@@ -14,7 +14,7 @@ export default function linksView({ links }) {
     }
 
     return (
-        <div className='flex flex-col justify-center '>  
+        <div className='flex flex-wrap justify-center '>  
             {links.map(link =>(
                 <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
                 cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'

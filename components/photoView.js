@@ -1,15 +1,13 @@
 import PolaroidPhoto from "./polaroidPhoto";
 
-export default function KanbanView({ links }) {
+export default function PhotoView({ links }) {
     return (
-        <div className='flex flex-col justify-center '>  
+        <div className="grid grid-cols-2 w-full gap-3">  
         {links.map(link =>(
-
             <PolaroidPhoto 
-            src = "/assets/profileSareish.jpeg"
-            alt = "test"
+            src = {link.photoUrl}
+            alt = {link.title}
             caption = {link.title}/>
-
         ))}
         </div>
     );

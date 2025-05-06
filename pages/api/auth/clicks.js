@@ -8,7 +8,7 @@ export default async function handler(req, res){
     if(req.method === "PATCH"){
         if(!req.body) return res.status(404).json({ error: "Don't have form data...!"});
         /* const { _id, index, title, url, active } = req.body; */
-        const { _id, index, title, url, active } = req.body;
+        const { _id, index, title, url, active, photoUrl} = req.body;
 
         // check duplicate users
         //const checkexisting = await Links.findOne({ email });
