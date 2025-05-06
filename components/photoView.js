@@ -5,7 +5,7 @@ export default function PhotoView({ links }) {
         <div className="grid grid-cols-2 w-full gap-3">  
         {links.map(link =>(
             <PolaroidPhoto 
-            key={link._id}
+            key={link.index}
             src = {link.photoUrl}
             alt = {link.title}
             caption = {link.title}/>
