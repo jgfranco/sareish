@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import { linkValidate } from '../lib/validate';
 import { useRouter } from 'next/router';
 import DragDropUpload from '../components/uploadForm';
+import Image from 'next/image';
 
 export default function LinksEditor({links}){
     
@@ -195,7 +196,7 @@ function User({ session, handleSignOut, links }){
                   {formik.values.photoUrl && (
                     <div className="mt-4">
                       <p className="text-sm text-gray-600">Photo uploaded successfully!</p>
-                      <img src={formik.values.photoUrl} alt="Uploaded preview" className="w-32 mx-auto mt-2 rounded-lg" />
+                      <Image src={formik.values.photoUrl} alt="Uploaded preview" className="w-32 mx-auto mt-2 rounded-lg" />
                     </div>
                   )}
 
