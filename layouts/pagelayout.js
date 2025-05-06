@@ -24,12 +24,12 @@ export default function PageLayout( { children }){
             <div className='flex gap-3'>
               <Link href ="http://instagram.com/sareish">
                 
-                  <Image src="/assets/instagram.svg" width={25} height={25}></Image>
+                  <Image src="/assets/instagram.svg" width={25} height={25} alt="instagram logo"></Image>
               
               </Link>
               <Link href="https://www.tiktok.com/@sareishh">
                 
-                  <Image src="/assets/tiktok.svg"  width={25} height={25}></Image>
+                  <Image src="/assets/tiktok.svg"  width={25} height={25} alt= "tiktok logo"></Image>
                 
               </Link>    
           </div>
