@@ -196,7 +196,7 @@ function User({ session, handleSignOut, links }){
                   {formik.values.photoUrl && (
                     <div className="mt-4">
                       <p className="text-sm text-gray-600">Photo uploaded successfully!</p>
-                      <Image src={formik.values.photoUrl} alt="Uploaded preview" className="w-32 mx-auto mt-2 rounded-lg" />
+                      <Image src={formik.values.photoUrl} alt="Uploaded preview" className="w-32 mx-auto mt-2 rounded-lg" width={75} height={75} />
                     </div>
                   )}
 
