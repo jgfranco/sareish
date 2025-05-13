@@ -87,7 +87,7 @@ function User({ session, handleSignOut, links }){
   }
 
   function setPhotoUrl(url){
-    formik.values.photoUrl = url
+    formik.setFieldValue('photoUrl', url);
   }
   
   async function onSubmit(values){
