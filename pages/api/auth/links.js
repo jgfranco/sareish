@@ -1,46 +1,58 @@
 import connectMongo from '../../../database/conn';
-import Links from '../../../model/LinkSchema'
+import Links from '../../../model/LinkSchema';
 
-export default async function handler(req, res){
-    connectMongo().catch(error => res.json({ error: "Connection Failed...!"}))
+export default async function handler(req, res) {
+  console.log("handler has been called");
 
-    // only post method is accepted
-    if(req.method === 'POST'){
+  await connectMongo().catch(error => {
+    console.error("Connection error:", error);
+    return res.status(500).json({ error: "Connection Failed...!" });
+  });
 
-        if(!req.body) return res.status(404).json({ error: "Don't have form data...!"});
-        const { index, title, url, active } = req.body;
+  console.log("HTTP Method:", req.method);
 
-        // check duplicate users
-        //const checkexisting = await Links.findOne({ email });
-        //if(checkexisting) return res.status(422).json({ message: "User Already Exists...!"});
+  if (req.method === 'POST') {
+    if (!req.body) return res.status(400).json({ error: "Don't have form data...!" });
 
-        Links.create({ index, title, url, active }, function(err, data){
-            if(err) return res.status(404).json({ err });
-            res.status(201).json({ status : true, user: data})
-        })
+    const { index, title, url, active, photoUrl } = req.body;
+
+    try {
+      const data = await Links.create({ index, title, url, active, photoUrl });
+      return res.status(201).json({ status: true, link: data });
+    } catch (err) {
+      console.error("Create error:", err);
+      return res.status(500).json({ error: "Failed to create link" });
     }
-    else if(req.method === 'GET'){
-        const links = await Links.find();
 
-        return {
-            props:{
-                links
-            }
-        }
+  } else if (req.method === 'GET') {
+    try {
+      const links = await Links.find();
+      return res.status(200).json({ links });
+    } catch (err) {
+      console.error("Fetch error:", err);
+      return res.status(500).json({ error: "Failed to fetch links" });
     }
-    else if(req.method === "PATCH"){
-        if(!req.body) return res.status(404).json({ error: "Don't have form data...!"});
-        const { _id, index, title, url, active } = req.body;
 
-        // check duplicate users
-        //const checkexisting = await Links.findOne({ email });
-        //if(checkexisting) return res.status(422).json({ message: "User Already Exists...!"});
+  } else if (req.method === 'PATCH') {
+    if (!req.body) return res.status(400).json({ error: "Don't have form data...!" });
 
-        Links.updateOne({_id}, { index, title, url, active }, function(err, data){
-            if(err) return res.status(404).json({ err });
-            res.status(201).json({ status : true, user: data})
-        })
-    } else{
-        res.status(500).json({ message: "HTTP method not valid only POST Accepted"})
+    const { _id, index, title, url, active, photoUrl } = req.body;
+
+    try {
+      console.log("Updating link with:", { _id, index, title, url, active, photoUrl });
+
+      const updateResult = await Links.updateOne(
+        { _id },
+        { index, title, url, active, photoUrl }
+      );
+
+      return res.status(200).json({ status: true, result: updateResult });
+    } catch (err) {
+      console.error("Update error:", err);
+      return res.status(500).json({ error: "Failed to update link" });
     }
-} 
+
+  } else {
+    res.status(405).json({ message: "HTTP method not allowed" });
+  }
+}

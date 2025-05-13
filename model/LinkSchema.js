@@ -5,7 +5,8 @@ const linkSchema = new Schema({
     title: String,
     url: String,
     active: String,
-    clicks: Number
+    clicks: Number,
+    photoUrl: String
 })
 
 const Links = models.links || model('links', linkSchema);

@@ -1,35 +1,36 @@
 import Head from 'next/head'
-//import styles from '../styles/Home.module.css'
-import Link from 'next/link'
-//import { getSession, useSession, signOut } from "next-auth/react"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
 import { linkValidate } from '../lib/validate';
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
+import {useState} from 'react';
+import LinksView from '../components/linksView';
+import PhotoView from '../components/photoView';
+import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
 
 export default function Home( {links}) {
-
   return (
     <Layout>
       <Head>
         <title>Home Page</title>
       </Head>
-      {Guest( {links})}
+      {Guest( {links})}    
     </Layout>
   )
 }
 
 // Guest 
 function Guest({links}){
-  const router = useRouter();
+  const [view, setView] = useState("list");
+
   // sort links by index
   links = links.sort(function(a, b) {
     return b.index - a.index;
   });
 
+  /*
   const formik = useFormik({
     initialValues: {
         title : '',
@@ -62,34 +63,28 @@ function Guest({links}){
     }
     await fetch('/api/auth/clicks', options)
       .then(res => res.json())
-      /* .then((data) => {
-        if (data) router.push("/")
-    }) */
   }
+  */
 
   return (
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
-        <div className="mb-8"> 
+        <div className="flex justify-center mb-8"> 
           <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
         </div>
-        {/* <h1>under construction</h1> */}
-        <div className='flex flex-col justify-center '>  
-          {links.map(link =>(
-            <div className='w-full bg-rose-50 hover:bg-rose-100 py-3 my-3 rounded-full 
-              cursor-pointer border-2 border-rose-100 hover:border-rose-200 hover:border-dashed text-rose-950'
-              onClick={(e) =>onLinkClick(e, link)}
-              key={link.index}> 
-              <p>{link.title}</p>
-            </div>
-            
-          ))}
+        <div className="flex justify-end">
+          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("list")}>
+            <HiOutlineViewList size={25}/>
+          </div>
+          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("photos")}>
+            <HiOutlineViewGrid size={25}/>
+          </div>
         </div>
+        {view === "list" ? <LinksView links={links} /> : <PhotoView links={links} />}
       </section>
   )
 }
 
 export const getServerSideProps = async () =>{
-
   try{
     //console.log("Connecting to Mongo");
     await connectMongo();
@@ -104,8 +99,6 @@ export const getServerSideProps = async () =>{
         links: JSON.parse(JSON.stringify(links)),
       },
     };
-
-
   }
   catch (error) {
     console.log(error);
