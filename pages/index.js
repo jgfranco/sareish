@@ -1,21 +1,25 @@
-import Head from 'next/head'
+
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
-import { linkValidate } from '../lib/validate';
-import { useFormik } from 'formik';
+/*import { linkValidate } from '../lib/validate';
+import { useFormik } from 'formik'; */
 import {useState} from 'react';
 import LinksView from '../components/linksView';
 import PhotoView from '../components/photoView';
-import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
+import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi"; 
+import Seo from '../components/Seo';
 
 export default function Home( {links}) {
   return (
     <Layout>
-      <Head>
-        <title>Home Page</title>
-      </Head>
+      <Seo 
+        title="Home"
+        description="Discover home decor, and lifestyle content by Sareish."
+        canonical="https://sareish.com/"
+        image="https://sareish.com/assets/profileSareish.jpeg"
+      />
       {Guest( {links})}    
     </Layout>
   )
