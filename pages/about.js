@@ -1,14 +1,17 @@
 import Layout from '../layouts/pagelayout'
-import Head from 'next/head'
 import Image from 'next/image';
+import Seo from '../components/Seo';
 
 export default function About() {
     return (
       <Layout>
-        <Head>
-          <title>About Me</title>
-        </Head>
-        {/* {session ? User({ session, handleSignOut }) : Guest( {links} )} */}
+        <Seo
+        title="About Me"
+        description="Get to know Sareish — the creator behind the home decor brand. Learn about her passion for beauty, design, and lifestyle inspiration."
+        canonical="https://sareish.com/about"
+        image="https://sareish.com/assets/profileSareish.jpeg"
+        />
+
         <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-screen">
           <div className="flex justify-center mb-8"> 
             <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
