@@ -23,7 +23,7 @@ export default function PageLayout( { children }){
               "url": "https://sareish.com",
               "sameAs": [
                 "https://www.instagram.com/sareish",
-                "https://www.tiktok.com/@sareish",
+                "https://www.tiktok.com/@sareishh",
                 "https://www.amazon.com/shop/sareish"
               ]
             })
@@ -32,7 +32,6 @@ export default function PageLayout( { children }){
       </Head>
 
       <main>
-        {/* Your homepage content here */}
         <div className="flex flex-col bg-zinc-50 h-full" >
         <div className="mx-auto bg-white w-full sm:w-3/5 h-full">
           {/* nav bar */}
@@ -47,17 +46,16 @@ export default function PageLayout( { children }){
               <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/contact">Contact</Link>
               </div>
+              <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
+                <Link href="/blog">Blog</Link>
+              </div>
             </div>
             <div className='flex gap-3'>
               <Link href ="http://instagram.com/sareish" rel='me'>
-                
                   <Image src="/assets/instagram.svg" width={25} height={25} alt="instagram logo"></Image>
-              
               </Link>
               <Link href="https://www.tiktok.com/@sareishh" rel='me'>
-                
                   <Image src="/assets/tiktok.svg"  width={25} height={25} alt= "tiktok logo"></Image>
-                
               </Link>    
           </div>
           </div>
@@ -68,7 +66,7 @@ export default function PageLayout( { children }){
               </div>
           </div>
           {/* footer */}
-          <div className='fixed text-center p-4 bottom-2 text-zinc-300'>
+          <div className='fixed bottom-2 right-4 text-right p-4 text-zinc-300'>
             <p>© sareish.com</p>
           </div>
         </div>
