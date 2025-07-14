@@ -82,7 +82,7 @@ export default function Post({ slug, frontmatter, content }) {
                 </p>
 
                 {image && (
-                    <Image src={image} alt={title} className="w-full my-4 rounded-xl" />
+                    <Image src={image} alt={title} className="w-full my-4 rounded-xl" width={50} height={50}/>
                 )}
 
                 <div dangerouslySetInnerHTML={{ __html: content }} />

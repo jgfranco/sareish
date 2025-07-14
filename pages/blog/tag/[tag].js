@@ -8,7 +8,7 @@ export default function TagPage({ tag, posts }) {
   return (
     <Layout>
       <Head>
-        <title>Posts tagged "{tag}"</title>
+        <title>Posts tagged {tag}</title>
         <meta name="description" content={`All blog posts tagged with ${tag}`} />
       </Head>
 
