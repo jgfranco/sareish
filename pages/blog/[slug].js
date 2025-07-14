@@ -7,6 +7,7 @@ import siteConfig from '../../lib/siteConfig';
 import { useState } from 'react';
 import { FaTwitter, FaFacebookF, FaLinkedinIn, FaLink } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Post({ slug, frontmatter, content }) {
 
@@ -81,7 +82,7 @@ export default function Post({ slug, frontmatter, content }) {
                 </p>
 
                 {image && (
-                    <img src={image} alt={title} className="w-full my-4 rounded-xl" />
+                    <Image src={image} alt={title} className="w-full my-4 rounded-xl" />
                 )}
 
                 <div dangerouslySetInnerHTML={{ __html: content }} />
