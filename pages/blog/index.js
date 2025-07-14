@@ -35,8 +35,7 @@ export default function Blog({ posts }) {
             <li key={post.slug} className="mb-6 border-b pb-4">
               <Link
                 href={`/blog/${post.slug}`}
-                className="text-xl font-semibold text-blue-600 hover:underline"
-              >
+                className="text-xl font-semibold text-gray-600 hover:bg-zinc-50 hover:underline">
                 {post.frontmatter.title}
               </Link>
               <p className="text-sm text-gray-500">
@@ -46,12 +45,13 @@ export default function Blog({ posts }) {
               {post.frontmatter.tags?.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {post.frontmatter.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
-                    >
-                      {tag}
-                    </span>
+                    <div key={tag}>
+                      <Link
+                        href={`/blog/tag/${encodeURIComponent(tag.toLowerCase())}`}
+                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:underline">
+                          {tag}
+                      </Link>
+                      </div> 
                   ))}
                 </div>
               )}

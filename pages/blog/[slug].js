@@ -74,7 +74,7 @@ export default function Post({ slug, frontmatter, content }) {
             </Head>
             <article className="prose mx-auto max-w-2xl p-6 h-screen">
                 <h2>{title}</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 text-center">
                     {date} 
                 </p>
                 <p className="text-sm text-gray-500">
@@ -82,25 +82,34 @@ export default function Post({ slug, frontmatter, content }) {
                 </p>
 
                 {image && (
-                    <Image src={image} alt={title} className="w-full my-4 rounded-xl" width={50} height={50}/>
+                    <div className="relative w-full h-64">
+                        <Image
+                            src="https://res.cloudinary.com/dwdxbtzud/image/upload/v1747092730/nextjs_uploads/csctalnbkfji0zjb6vvj.png"
+                            alt="Banner"
+                            fill
+                            style={{ objectFit: 'cover' }}
+                        />
+                    </div>
                 )}
 
-                <div dangerouslySetInnerHTML={{ __html: content }} />
+                <div className="[&>p]:indent-8 text-justify">
+                    <div dangerouslySetInnerHTML={{ __html: content }} />
+                </div>
 
                 {tags?.length && (
                     <div className="mt-6">
-                        <p className="text-sm text-gray-600">Tags:</p>
-                        <ul className="flex flex-wrap gap-2 mt-1">
-                        {tags.map((tag) => (
-                            <li key={tag}>
-                            <Link
-                                href={`/blog/tag/${encodeURIComponent(tag.toLowerCase())}`}
-                                className="text-xs bg-gray-100 text-blue-600 px-2 py-1 rounded hover:underline"
-                            >
-                                {tag}
-                            </Link>
-                            </li>
-                        ))}
+                        <p className="text-sm text-zinc-600">Tags:</p>
+                        <ul className="flex flex-wrap gap-2 mt-1 list-none">
+                            {tags.map((tag) => (
+                                <li key={tag}>
+                                <Link
+                                    href={`/blog/tag/${encodeURIComponent(tag.toLowerCase())}`}
+                                    className="text-xs bg-zinc-100 text-zinc-600 px-2 py-1 rounded hover:underline"
+                                >
+                                    {tag}
+                                </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 )}
@@ -109,39 +118,35 @@ export default function Post({ slug, frontmatter, content }) {
                     <p className="text-sm text-gray-600 mb-2">Share this post:</p>
                     <div className="flex gap-4 items-center text-gray-600">
                         <a
-                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Share on Twitter"
-                        className="hover:text-blue-500 transition"
-                        >
-                        <FaTwitter size={20} />
+                            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Share on Twitter"
+                            className="hover:text-blue-500 transition">
+                            <FaTwitter size={20} />
                         </a>
                         <a
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Share on Facebook"
-                        className="hover:text-blue-700 transition"
-                        >
-                        <FaFacebookF size={20} />
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Share on Facebook"
+                            className="hover:text-blue-700 transition">
+                            <FaFacebookF size={20} />
                         </a>
                         <a
-                        href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(postUrl)}&title=${encodeURIComponent(title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Share on LinkedIn"
-                        className="hover:text-blue-600 transition"
-                        >
-                        <FaLinkedinIn size={20} />
+                            href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(postUrl)}&title=${encodeURIComponent(title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Share on LinkedIn"
+                            className="hover:text-blue-600 transition">
+                            <FaLinkedinIn size={20} />
                         </a>
                         <button
-                        onClick={handleCopy}
-                        aria-label="Copy Link"
-                        className="hover:text-black transition focus:outline-none"
-                        >
-                        <FaLink size={20} />
-                        {copied && <span className="ml-2 text-xs text-green-600">Copied!</span>}
+                            onClick={handleCopy}
+                            aria-label="Copy Link"
+                            className="hover:text-black transition focus:outline-none">
+                            <FaLink size={20} />
+                            {copied && <span className="ml-2 text-xs text-green-600">Copied!</span>}
                         </button>
                     </div>
                 </div>
