@@ -46,9 +46,11 @@ export default function PageLayout( { children }){
               <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/contact">Contact</Link>
               </div>
+              {/*
               <div className='p-2 hover:bg-zinc-50 text-zinc-600' >
                 <Link href="/blog">Blog</Link>
               </div>
+              */}
             </div>
             <div className='flex gap-3'>
               <Link href ="http://instagram.com/sareish" rel='me'>
