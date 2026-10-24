@@ -9,6 +9,8 @@ export default function TagPage({ tag, posts }) {
     <Layout>
       <Head>
         <title>Posts tagged {tag}</title>
+        {/* blog is hidden until it launches */}
+        <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content={`All blog posts tagged with ${tag}`} />
       </Head>
 

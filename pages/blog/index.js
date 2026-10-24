@@ -13,6 +13,8 @@ export default function Blog({ posts }) {
     <Layout>
       <Head>
         <title>{pageTitle}</title>
+        {/* blog is hidden until it launches */}
+        <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={pageUrl} />
 

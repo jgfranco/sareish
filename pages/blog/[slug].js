@@ -35,6 +35,8 @@ export default function Post({ slug, frontmatter, content }) {
         <Layout>
             <Head>
                 <title>{title} | {siteConfig.name}</title>
+                {/* blog is hidden until it launches */}
+                <meta name="robots" content="noindex, nofollow" />
                 <meta name="description" content={excerpt} />
                 <meta name="author" content={author} />
                 <link rel="canonical" href={postUrl} />
