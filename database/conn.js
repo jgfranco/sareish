@@ -1,17 +1,24 @@
 import mongoose from 'mongoose';
 
+// reuse one connection across hot reloads and serverless invocations
+let cached = global.mongoose;
+if (!cached) cached = global.mongoose = { conn: null, promise: null };
+
 const connectMongo = async () => {
-    try {
+    if (cached.conn) return cached.conn;
+
+    if (!cached.promise) {
         mongoose.set('strictQuery', true);
-        const { connection } = await mongoose.connect(process.env.MONGO_URL);
-        /* process.env.MONGO_URL
-        */
-        if(connection.readyState == 1){
-            return Promise.resolve(true)
-        }
-    } catch (error) {
-        return Promise.reject(error)
+        cached.promise = mongoose.connect(process.env.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
     }
+
+    try {
+        cached.conn = await cached.promise;
+    } catch (error) {
+        cached.promise = null;
+        throw error;
+    }
+    return cached.conn;
 }
 
 export default connectMongo;

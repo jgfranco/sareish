@@ -26,6 +26,7 @@ export default function LinksEditor({links}){
     <Layout>
       <Head>
           <title>Links Editor</title>
+          <meta name="robots" content="noindex, nofollow" />
       </Head>
       {session ? User({ session, handleSignOut, links}) : <p>Restricted Access</p>}
     </Layout>

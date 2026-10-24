@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,10 +12,6 @@
   }
 }
 
-* > *{
-  font-family: 'Poppins', sans-serif;
-}
-
 a {
   color: inherit;
   text-decoration: none;
@@ -30,4 +24,8 @@ a {
 .bg-noise {
   background-image: url('../public/assets/noise.png'); /* or use a data URI base64 PNG */
   background-repeat: repeat;
+}
+
+input, button, textarea, select {
+  font: inherit;
 }

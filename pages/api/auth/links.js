@@ -2,6 +2,15 @@ import connectMongo from '../../../database/conn';
 import Links from '../../../model/LinkSchema';
 import requireSession from '../../../lib/requireSession';
 
+// rebuild the static homepage so changes show up right away
+async function refreshHomepage(res) {
+  try {
+    await res.revalidate('/');
+  } catch (err) {
+    console.error("Revalidate error:", err);
+  }
+}
+
 export default async function handler(req, res) {
   const session = await requireSession(req, res);
   if (!session) return;
@@ -20,6 +29,7 @@ export default async function handler(req, res) {
 
     try {
       const data = await Links.create({ index, title, url, active, photoUrl });
+      await refreshHomepage(res);
       return res.status(201).json({ status: true, link: data });
     } catch (err) {
       console.error("Create error:", err);
@@ -45,6 +55,7 @@ export default async function handler(req, res) {
         { _id },
         { index, title, url, active, photoUrl }
       );
+      await refreshHomepage(res);
 
       return res.status(200).json({ status: true, result: updateResult });
     } catch (err) {

@@ -20,7 +20,7 @@ export default function Home( {links}) {
     <Layout>
       <Seo
         title="Home"
-        description="Discover home decor, and lifestyle content by Sareish."
+        description="Sareish shares home decor ideas, styling tips, and favorite finds for creating beautiful, romantic spaces. Shop her Amazon storefront and follow along on Instagram and TikTok."
         canonical="https://sareish.com/"
         image="https://sareish.com/assets/profileSareish.jpeg"
       />
@@ -62,7 +62,8 @@ function Guest({links}){
   )
 }
 
-export const getServerSideProps = async () =>{
+// static page, rebuilt at most once a minute and right after links are saved in the editor
+export const getStaticProps = async () =>{
   try{
     await connectMongo();
     const links = await Links.find({active: true}); // bring only active links
@@ -71,6 +72,7 @@ export const getServerSideProps = async () =>{
       props: {
         links: JSON.parse(JSON.stringify(links)),
       },
+      revalidate: 60,
     };
   }
   catch (error) {
@@ -79,6 +81,7 @@ export const getServerSideProps = async () =>{
       props: {
         links: fallbackLinks,
       },
+      revalidate: 10,
     };
   }
 }

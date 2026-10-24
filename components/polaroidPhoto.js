@@ -23,7 +23,7 @@ export default function PolaroidPhoto({ src, alt, caption, url, tiltIndex = 0 })
         <div className="absolute inset-0 bg-noise opacity-10 mix-blend-overlay pointer-events-none" />
       </div>
       {caption && (
-      <p className="text-xs text-gray-700 mt-3 font-mono italic">{caption}</p>
+      <p className="text-xs text-gray-700 mt-3 italic">{caption}</p>
       )}
     </a>
   );
