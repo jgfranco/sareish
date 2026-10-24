@@ -13,6 +13,7 @@ import { useRouter } from 'next/router';
 export default function Login(){
 
     const [show, setShow] = useState(false)
+    const [error, setError] = useState('')
     const router = useRouter()
     
     // formik hook
@@ -34,7 +35,8 @@ export default function Login(){
             callbackUrl: "/linksEditor"
         })
 
-        if(status.ok) router.push(status.url)        
+        if(status?.ok) return router.push(status.url)
+        setError(status?.error || 'Login failed, please try again')
     }
 
     // Google Handler function
@@ -89,6 +91,7 @@ export default function Login(){
                     
                     </div>
                     {formik.errors.password && formik.touched.password ? <span className='text-rose-500'>{formik.errors.password}</span> : <></>}
+                    {error ? <span className='text-rose-500'>{error}</span> : <></>}
                     {/* login buttons */}
                     <div className="input-button">
                         <button type='submit' className={styles.button}>
