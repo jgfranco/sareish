@@ -53,6 +53,7 @@ export default function Login(){
         <Layout>
             <Head>
                 <title>Login</title>
+                <meta name="robots" content="noindex, nofollow" />
             </Head>
             <section className='flex flex-col w-3/4 mx-auto gap-10'>
                 <div className="title">
