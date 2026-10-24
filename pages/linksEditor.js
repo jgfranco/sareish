@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import styles from '../styles/Form.module.css'
-import { getSession, useSession, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
@@ -247,27 +249,22 @@ function User({ session, handleSignOut, links }){
 }
 
 
-export const getServerSideProps = async ({req}) =>{
+export const getServerSideProps = async ({req, res}) =>{
 
   try{
-      //console.log("Connecting to Mongo");
-      await connectMongo();
-      //console.log("Connected to Mongo");
-      
-      //console.log("Fetching documents");
-      const links = await Links.find(); // {active:true} to bring only active links
-      //console.log("Documents fetched")
-
-      const session = await getSession({ req })
+      const session = await getServerSession(req, res, authOptions)
 
       if(!session){
           return {
               redirect : {
                   destination : "/login",
-                  premanent: false
+                  permanent: false
               }
           }
       }
+
+      await connectMongo();
+      const links = await Links.find(); // {active:true} to bring only active links
 
       return {
           props: {

@@ -1,51 +1,34 @@
 import NextAuth from 'next-auth';
-//import GoogleProvider from "next-auth/providers/google";
-//import GithubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import connectMongo from '../../../database/conn'
 import Users from '../../../model/Schema'
 import { compare } from 'bcryptjs'
 
-const bcrypt = require('bcryptjs')
-
-export default NextAuth({
+export const authOptions = {
     providers : [
-        // Google Provider
-        /*GoogleProvider({
-            clientId: process.env.GOOGLE_ID,
-            clientSecret: process.env.GOOGLE_SECRET
-        }),
-        GithubProvider({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET
-        }),*/
         CredentialsProvider({
             name : "Credentials",
             async authorize(credentials, req){
 
-                connectMongo().catch(error => { error: "Connection Failed...!"})
+                await connectMongo();
 
                 // check user existance
                 const result = await Users.findOne( { email : credentials.email})
-                if(!result){
-                    throw new Error("No user Found with Email Please Sign Up...!")
-                    
-                }
-                    
-                // compare()
-                const checkPassword = await compare(credentials.password, result.password);
-                
-                // incorrect password || result.email !== credentials.email
-                if(!checkPassword || result.email !== credentials.email){
-                    throw new Error("Username or Password doesn't match");
-                }
-                return result;
 
+                // compare(); same message for unknown email and wrong password
+                const checkPassword = result ? await compare(credentials.password, result.password) : false;
+                if(!checkPassword){
+                    throw new Error("Email or password doesn't match");
+                }
+
+                return { id: result._id.toString(), name: result.username, email: result.email };
             }
         })
     ],
-    secret: "XH6bp/TkLvnUkQiPDEZNyHc0CV+VV5RL/n+HdVHoHN0=",
+    secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: 'jwt',
     }
-})
+}
+
+export default NextAuth(authOptions)
