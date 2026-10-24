@@ -5,16 +5,18 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
+import Clicks from '../model/ClickSchema';
+import ClickStats from '../components/clickStats';
 import Layout from '../layouts/pagelayout';
-import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout, HiOutlineTrash }  from 'react-icons/hi'
-import { useState } from 'react';
+import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout, HiOutlineTrash, HiOutlineChevronUp, HiOutlineChevronDown, HiOutlineMenu }  from 'react-icons/hi'
+import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { linkValidate } from '../lib/validate';
 import { useRouter } from 'next/router';
 import DragDropUpload from '../components/uploadForm';
 import Image from 'next/image';
 
-export default function LinksEditor({links}){
+export default function LinksEditor({links, stats}){
     
   const { data: session } = useSession()
 
@@ -28,12 +30,12 @@ export default function LinksEditor({links}){
           <title>Links Editor</title>
           <meta name="robots" content="noindex, nofollow" />
       </Head>
-      {session ? <User session={session} handleSignOut={handleSignOut} links={links} /> : <p>Restricted Access</p>}
+      {session ? <User session={session} handleSignOut={handleSignOut} links={links} stats={stats} /> : <p>Restricted Access</p>}
     </Layout>
   )
 }
 
-function User({ session, handleSignOut, links }){
+function User({ session, handleSignOut, links, stats }){
 
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
@@ -53,8 +55,24 @@ function User({ session, handleSignOut, links }){
     onSubmit
   })
 
-  // sort links descending
-  const sortedLinks = [...links].sort((a, b) => b.index - a.index);
+  // sort links descending; kept in state so it can be reordered
+  const [sortedLinks, setSortedLinks] = useState(() => [...links].sort((a, b) => b.index - a.index));
+  const [dragId, setDragId] = useState(null);
+  useEffect(() => {
+    setSortedLinks([...links].sort((a, b) => b.index - a.index));
+  }, [links]);
+
+  // move a link to a new position and save the order
+  async function moveLink(id, toIndex){
+    const from = sortedLinks.findIndex(l => l._id === id);
+    if (from === -1 || toIndex < 0 || toIndex >= sortedLinks.length || from === toIndex) return;
+    const next = [...sortedLinks];
+    const [moved] = next.splice(from, 1);
+    next.splice(toIndex, 0, moved);
+    setSortedLinks(next);
+    const saved = await saveLink('PUT', { order: next.map(l => l._id) }, 'Order saved');
+    if (!saved) setSortedLinks([...links].sort((a, b) => b.index - a.index));
+  }
 
   // edit link handlers
   function handleEditLink(link){
@@ -215,13 +233,29 @@ function User({ session, handleSignOut, links }){
               <button type='button' className='flex self-center justify-center items-center w-10 h-10 rounded-full hover:bg-zinc-100' onClick={handleAddLink} aria-label='Add link'>
                 <HiOutlinePlusCircle  size={25}/>
               </button>
-              {sortedLinks.map(link =>(
-                <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full
-                    border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'>
-                  <p className="px-4 text-left">|{link.index}|: {link.title} | {(link.url || "").substring(0,20)}... | active:{String(link.active)} | clicks: {link.clicks || 0} | photoUrl: {(link.photoUrl || "").substring(0,40)}...</p>
-                  <button type='button' className='icon flex items-center px-4' onClick={() => handleEditLink(link)} aria-label={`Edit ${link.title}`}><HiOutlinePencilAlt size={25} /></button>
+              <p className='text-xs text-zinc-500 mt-2'>Drag a link (or use the arrows) to change its position on the homepage.</p>
+              {sortedLinks.map((link, i) =>(
+                <div key = {link._id}
+                    draggable
+                    onDragStart={(e) => { setDragId(link._id); e.dataTransfer.effectAllowed = 'move'; }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => { e.preventDefault(); moveLink(dragId, i); setDragId(null); }}
+                    onDragEnd={() => setDragId(null)}
+                    className={`flex flex-row items-center justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 my-2 rounded-full
+                    border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
+                  <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
+                  <p className="px-3 text-left flex-1 min-w-0 truncate">
+                    {link.title}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
+                    <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
+                  </p>
+                  <div className='flex items-center pr-2'>
+                    <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i - 1)} disabled={i === 0} aria-label={`Move ${link.title} up`}><HiOutlineChevronUp size={20} /></button>
+                    <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i + 1)} disabled={i === sortedLinks.length - 1} aria-label={`Move ${link.title} down`}><HiOutlineChevronDown size={20} /></button>
+                    <button type='button' className='icon flex items-center px-2' onClick={() => handleEditLink(link)} aria-label={`Edit ${link.title}`}><HiOutlinePencilAlt size={25} /></button>
+                  </div>
                 </div>
               ))}
+              <ClickStats links={sortedLinks} stats={stats} />
             </div>
           }
         </div>
@@ -256,9 +290,24 @@ export const getServerSideProps = async ({req, res}) =>{
       await connectMongo();
       const links = await Links.find(); // {active:true} to bring only active links
 
+      // clicks per link over the last 7 and 30 days
+      const now = Date.now();
+      const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000);
+      const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      const counts = await Clicks.aggregate([
+          { $match: { at: { $gte: since30 } } },
+          { $group: {
+              _id: '$link',
+              d30: { $sum: 1 },
+              d7: { $sum: { $cond: [{ $gte: ['$at', since7] }, 1, 0] } },
+          } },
+      ]);
+      const stats = Object.fromEntries(counts.map(c => [String(c._id), { d7: c.d7, d30: c.d30 }]));
+
       return {
           props: {
               links: JSON.parse(JSON.stringify(links)),
+              stats,
               session: session
           },
       };

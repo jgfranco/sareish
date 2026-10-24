@@ -63,6 +63,22 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Failed to update link" });
     }
 
+  } else if (req.method === 'PUT') {
+    // reorder: ids arrive in display order, first one gets the highest index
+    const { order } = req.body || {};
+    if (!Array.isArray(order) || !order.length) return res.status(400).json({ error: "Missing link order" });
+
+    try {
+      await Links.bulkWrite(order.map((_id, i) => ({
+        updateOne: { filter: { _id }, update: { index: String(order.length - 1 - i) } },
+      })));
+      await refreshHomepage(res);
+      return res.status(200).json({ status: true });
+    } catch (err) {
+      console.error("Reorder error:", err);
+      return res.status(500).json({ error: "Failed to save the new order" });
+    }
+
   } else if (req.method === 'DELETE') {
     const { _id } = req.body || {};
     if (!_id) return res.status(400).json({ error: "Missing link id" });
