@@ -1,6 +1,6 @@
-import connectMongo from '../../../database/conn';
-import Links from '../../../model/LinkSchema';
-import requireSession from '../../../lib/requireSession';
+import connectMongo from '../../database/conn';
+import Links from '../../model/LinkSchema';
+import requireSession from '../../lib/requireSession';
 
 // rebuild the static homepage so changes show up right away
 async function refreshHomepage(res) {
@@ -61,6 +61,19 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("Update error:", err);
       return res.status(500).json({ error: "Failed to update link" });
+    }
+
+  } else if (req.method === 'DELETE') {
+    const { _id } = req.body || {};
+    if (!_id) return res.status(400).json({ error: "Missing link id" });
+
+    try {
+      await Links.deleteOne({ _id });
+      await refreshHomepage(res);
+      return res.status(200).json({ status: true });
+    } catch (err) {
+      console.error("Delete error:", err);
+      return res.status(500).json({ error: "Failed to delete link" });
     }
 
   } else {

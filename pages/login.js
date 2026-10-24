@@ -1,10 +1,9 @@
 import Head from 'next/head'
 import Layout from '../layouts/authlayout'
-import Link from 'next/link'
 import styles from '../styles/Form.module.css';
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import { useState } from 'react';
-import { signIn, signOut } from "next-auth/react"
+import { signIn } from "next-auth/react"
 import { useFormik } from 'formik';
 import loginValidate from '../lib/validate';
 import { useRouter } from 'next/router';
@@ -39,15 +38,6 @@ export default function Login(){
         setError(status?.error || 'Login failed, please try again')
     }
 
-    // Google Handler function
-    /* async function handleGoogleSignin(){
-        signIn('google', { callbackUrl : "http://localhost:3000"})
-    }
-
-    // Github Login 
-    async function handleGithubSignin(){
-        signIn('github', { callbackUrl : "http://localhost:3000"})
-    }*/
 
     return (
         <Layout>
@@ -58,7 +48,6 @@ export default function Login(){
             <section className='flex flex-col w-3/4 mx-auto gap-10'>
                 <div className="title">
                     <h1 className='text-zinc-800 text-4xl font-bold py-4'>Login</h1>
-                    {/* <p className='w-3/4 mx-auto text-gray-400'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, officia?</p> */}
                 </div>
 
                 {/* form */}
@@ -99,18 +88,6 @@ export default function Login(){
                             Login
                         </button>
                     </div>
-                    {/* 
-                    <div className="input-button">
-                        <button type='button' onClick={handleGoogleSignin} className={styles.button_custom}>
-                            Sign In with Google <Image src={'/assets/google.svg'} width="20" height={20} ></Image>
-                        </button>
-                    </div>
-                    <div className="input-button">
-                        <button type='button' onClick={handleGithubSignin} className={styles.button_custom}>
-                            Sign In with Github <Image src={'/assets/github.svg'} width={25} height={25}></Image>
-                        </button>
-                    </div>
-                    */}
                 </form>
 
             </section>

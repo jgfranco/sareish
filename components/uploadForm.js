@@ -17,11 +17,8 @@ export default function DragDropUpload({ onUploadComplete }) {
         body: formData,
       });
       const data = await res.json();
-      if (onUploadComplete) {
-        console.log(data.url)
-        onUploadComplete(data.url); // <<< Call parent function here!
-        
-      }
+      if (!res.ok || !data.url) throw new Error(data.error || "Upload failed");
+      if (onUploadComplete) onUploadComplete(data.url);
     } catch (err) {
       console.error("Upload failed:", err);
     } finally {

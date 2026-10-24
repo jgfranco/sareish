@@ -1,4 +1,5 @@
 import PolaroidPhoto from "./polaroidPhoto";
+import trackClick from "../lib/trackClick";
 
 export default function PhotoView({ links }) {
     // only links with a photo can be shown as a polaroid
@@ -13,6 +14,7 @@ export default function PhotoView({ links }) {
                 alt = {link.title}
                 caption = {link.title}
                 url={link.url}
+                onClick={() => trackClick(link._id)}
                 tiltIndex={i}/>
             </li>
         ))}
