@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import connectMongo from '../../database/conn';
 import Links from '../../model/LinkSchema';
+import Clicks from '../../model/ClickSchema';
 
 // counts a click on a homepage link; called with navigator.sendBeacon
 export default async function handler(req, res) {
@@ -19,7 +20,10 @@ export default async function handler(req, res) {
 
   try {
     await connectMongo();
-    await Links.updateOne({ _id }, { $inc: { clicks: 1 } });
+    await Promise.all([
+      Links.updateOne({ _id }, { $inc: { clicks: 1 } }),
+      Clicks.create({ link: _id }),
+    ]);
     return res.status(204).end();
   } catch (err) {
     console.error("Click error:", err);

@@ -73,7 +73,8 @@ export default function PageLayout( { children }){
               </div>
           </div>
           {/* footer */}
-          <footer className='text-right p-4 text-zinc-500 text-sm'>
+          <footer className='p-4 text-zinc-500 text-xs sm:text-sm flex flex-col sm:flex-row sm:justify-between gap-1 text-center sm:text-left'>
+            <p>As an Amazon Associate I earn from qualifying purchases.</p>
             <p>© sareish.com</p>
           </footer>
         </div>
