@@ -6,7 +6,7 @@ import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
-import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout}  from 'react-icons/hi'
+import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout, HiOutlineTrash }  from 'react-icons/hi'
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import { linkValidate } from '../lib/validate';
@@ -28,192 +28,176 @@ export default function LinksEditor({links}){
           <title>Links Editor</title>
           <meta name="robots" content="noindex, nofollow" />
       </Head>
-      {session ? User({ session, handleSignOut, links}) : <p>Restricted Access</p>}
+      {session ? <User session={session} handleSignOut={handleSignOut} links={links} /> : <p>Restricted Access</p>}
     </Layout>
   )
 }
 
 function User({ session, handleSignOut, links }){
 
-  const [showAddLink, setShowAddLink] = useState(false);
-  const [showEditLink, setShowEditLink] = useState(false);
-  const [showPhoto, setShowPhoto] = useState(false);
+  const [mode, setMode] = useState(null); // null, 'add' or 'edit'
+  const [message, setMessage] = useState('');
   const router = useRouter();
-  
+
   // formik Hook
   const formik = useFormik({
     initialValues: {
         title : '',
         url: '',
-        active: '',
+        active: true,
         index: '',
         photoUrl:''
     },
     validate: linkValidate,
     onSubmit
-  })   
+  })
 
   // sort links descending
-  links = links.sort(function(a, b) {
-      return b.index - a.index;
-  });
+  const sortedLinks = [...links].sort((a, b) => b.index - a.index);
 
   // edit link handlers
-  function handleEditLink(e, link){
-    e.preventDefault();
-    //setCurrentLink(link)
-    formik.values._id = link._id
-    formik.values.title = link.title;
-    formik.values.url = link.url;
-    link.active === 'true' ? formik.values.active = true : formik.values.active = false;
-    formik.values.index = link.index;
-    formik.values.photoUrl = link.photoUrl;
-    setShowEditLink(true);
-    
+  function handleEditLink(link){
+    formik.resetForm({ values: {
+      _id: link._id,
+      title: link.title || '',
+      url: link.url || '',
+      active: String(link.active) === 'true',
+      index: link.index ?? '',
+      photoUrl: link.photoUrl || '',
+    }});
+    setMessage('');
+    setMode('edit');
   }
-  function handleCancel(e){
-    e.preventDefault();
-    if (showEditLink) setShowEditLink(false);
-    if (showAddLink) setShowAddLink(false);
+
+  function handleCancel(){
+    setMode(null);
   }
 
   // add link handlers
-  function handleAddLink(e){
-    e.preventDefault();
-    //setCurrentLink({...currentLink, active: 'true', url:'', title:'', index: links.length})
-    formik.values.title = '';
-    formik.values.url = '';
-    formik.values.active = true;
-    formik.values.index = links.length;
-    formik.values.photoUrl = '';
-    setShowAddLink(true);
+  function handleAddLink(){
+    formik.resetForm({ values: {
+      title: '',
+      url: '',
+      active: true,
+      index: links.length,
+      photoUrl: '',
+    }});
+    setMessage('');
+    setMode('add');
   }
 
   function setPhotoUrl(url){
     formik.setFieldValue('photoUrl', url);
   }
-  
-  async function onSubmit(values){
-    console.log("form submitted with these values", values)
 
-    // add a new link
-    if (showAddLink){
-      console.log("adding  new link to database");
+  // send a change to the links API, then reload the list
+  async function saveLink(method, values, doneMessage){
+    const res = await fetch('/api/links', {
+      method,
+      headers : { 'Content-Type': 'application/json'},
+      body: JSON.stringify(values)
+    });
 
-      // add to database
-      const options = {
-        method: "POST",
-        headers : { 'Content-Type': 'application/json'},
-        body: JSON.stringify(values)
-      }
-      
-      await fetch('/api/auth/links', options)
-        .then(res => res.json())
-        .then((data) => {
-            if(data) router.push('/linksEditor')
-      })
-      
-      // hide module after a succesfull addition
-      setShowAddLink(false);
-      
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setMessage(data.error || 'Something went wrong, please try again');
+      return false;
     }
 
-    // edit a link
-    if (showEditLink){
-      console.log("updating link in database");
-
-      // update link in database
-      const options = {
-        method: "PATCH",
-        headers : { 'Content-Type': 'application/json'},
-        body: JSON.stringify(values)
-      }
-     
-      console.log("Sending PATCH request with:", options);
-      await fetch('/api/auth/links', options)
-        .then(res => res.json())
-        .then((data) => {
-            if(data) router.push('/linksEditor')
-      })
-      // hide module after a succesfull update
-      setShowEditLink(false);
-    }
+    setMessage(doneMessage);
+    setMode(null);
+    router.replace(router.asPath);
+    return true;
   }
 
-  
+  async function onSubmit(values){
+    if (mode === 'add') await saveLink('POST', values, 'Link added');
+    if (mode === 'edit') await saveLink('PATCH', values, 'Link updated');
+  }
+
+  async function handleDelete(){
+    if (!window.confirm(`Delete "${formik.values.title}"? This can't be undone.`)) return;
+    await saveLink('DELETE', { _id: formik.values._id }, 'Link deleted');
+  }
+
   return (
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">
+        {message && <p className='mb-4 text-sm text-zinc-600' role='status'>{message}</p>}
         <div className='flex flex-col'>
-          {showAddLink || showEditLink
+          {mode
             ?
             <form onSubmit={formik.handleSubmit}>
               <div className='grid grid-cols-4 gap-4'>
                 <div className='col-span-4'>
-                  <div className='flex flex-col w-fu  ll'>
-                    <div className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full' onClick={(e) => handleCancel(e)}>
-                      <HiOutlineXCircle size={25}/></div>
+                  <div className='flex flex-col w-full'>
+                    <button type='button' className='flex self-center justify-center items-center w-10 h-10 rounded-full' onClick={handleCancel} aria-label='Cancel'>
+                      <HiOutlineXCircle size={25}/></button>
                   </div>
                 </div>
                 <div className='col-span-4'>
-                  <input 
+                  <input
                     type="text"
-                    name='title'
                     placeholder='title'
+                    aria-label='Title'
                     className={styles.input_text}
-                    {...formik.getFieldProps('title')} 
+                    {...formik.getFieldProps('title')}
                   />
-                {formik.errors.title && formik.touched.title ? <span className='text-rose-500'>{formik.errors.title}</span> : <></>} 
+                {formik.errors.title && formik.touched.title ? <span className='text-rose-500'>{formik.errors.title}</span> : <></>}
                 </div>
                 <div className='col-span-4'>
-                  <input 
+                  <input
                     type="text"
-                    name='url'
                     placeholder='url'
+                    aria-label='URL'
                     className={styles.input_text}
                     {...formik.getFieldProps('url')}
                   />
-                {formik.errors.url && formik.touched.url ? <span className='text-rose-500'>{formik.errors.url}</span> : <></>} 
+                {formik.errors.url && formik.touched.url ? <span className='text-rose-500'>{formik.errors.url}</span> : <></>}
                 </div>
                   <div className='col-span-4'>
-                    <input 
-                      type="text"
-                      name='index'
+                    <input
+                      type="number"
                       placeholder='index'
+                      aria-label='Position (higher shows first)'
                       className={styles.input_text}
-                      readOnly={showAddLink}
-                      {...formik.getFieldProps('index')} 
+                      readOnly={mode === 'add'}
+                      {...formik.getFieldProps('index')}
                     />
-                  </div>  
-                <div><label for="active">active:</label></div>
-                <div className='col-span-3'>
-                  <input 
+                  </div>
+                <div><label htmlFor="active">active:</label></div>
+                <div className='col-span-3 text-left'>
+                  <input
+                    id="active"
                     type="checkbox"
-                    name='active'
-                    checked={formik.values.active}
-                    {...formik.getFieldProps('active')}
+                    {...formik.getFieldProps({ name: 'active', type: 'checkbox' })}
                   />
                 </div>
-               
+
                 <div className="col-span-4">
                   <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} />
                   {formik.values.photoUrl && (
                     <div className="mt-4">
-                      <p className="text-sm text-gray-600">Photo uploaded successfully!</p>
-                      <Image src={formik.values.photoUrl} alt="Uploaded preview" className="w-32 mx-auto mt-2 rounded-lg" width={75} height={75} />
+                      <Image src={formik.values.photoUrl} alt="Photo preview" className="w-32 mx-auto mt-2 rounded-lg" width={75} height={75} />
                     </div>
                   )}
 
-                  <input 
+                  <input
                     type="text"
-                    name='photoUrl'
-                    placeholder='url'
+                    placeholder='photo url'
+                    aria-label='Photo URL'
                     className={styles.input_text}
                     {...formik.getFieldProps('photoUrl')}
                   />
                 </div>
                 <div className='col-span-4'>
-                  <div className='flex flex-col w-full'>
-                    <button type= 'submit' className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full'>
+                  <div className='flex justify-center gap-4'>
+                    {mode === 'edit' && (
+                      <button type='button' onClick={handleDelete} disabled={formik.isSubmitting}
+                        className='flex justify-center items-center w-10 h-10 rounded-full text-rose-600 hover:bg-rose-50' aria-label='Delete link'>
+                        <HiOutlineTrash size={25}/></button>
+                    )}
+                    <button type='submit' disabled={formik.isSubmitting}
+                      className='flex justify-center items-center w-10 h-10 rounded-full hover:bg-zinc-100' aria-label='Save link'>
                       <HiOutlineCheckCircle size={25}/></button>
                   </div>
                 </div>
@@ -221,30 +205,28 @@ function User({ session, handleSignOut, links }){
             </form>
             :
             <div className='flex flex-col w-full'>
-              <div className='flex self-center justify-center items-center w-10 h-10 cursor-pointer rounded-full' onClick={(e)=> handleAddLink(e)}>
+              <button type='button' className='flex self-center justify-center items-center w-10 h-10 rounded-full hover:bg-zinc-100' onClick={handleAddLink} aria-label='Add link'>
                 <HiOutlinePlusCircle  size={25}/>
-              </div>
-              {links.map(link =>(
-                <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full 
-                    cursor-pointer border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'> 
-                  <p className="px-4">|{link.index}|: {link.title} | {(link.url || "").substring(0,20)}... | active:{link.active} | clicks: {link.clicks} | photoUrl: {(link.photoUrl || "").substring(0,40)}...</p> 
-                  <span className='icon flex items-center px-4' onClick={(e) => handleEditLink(e, link)}><HiOutlinePencilAlt size={25} /></span>
+              </button>
+              {sortedLinks.map(link =>(
+                <div key = {link._id} className='flex flex-row justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 m-3 rounded-full
+                    border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950'>
+                  <p className="px-4 text-left">|{link.index}|: {link.title} | {(link.url || "").substring(0,20)}... | active:{String(link.active)} | clicks: {link.clicks || 0} | photoUrl: {(link.photoUrl || "").substring(0,40)}...</p>
+                  <button type='button' className='icon flex items-center px-4' onClick={() => handleEditLink(link)} aria-label={`Edit ${link.title}`}><HiOutlinePencilAlt size={25} /></button>
                 </div>
-              ))}  
+              ))}
             </div>
           }
-        </div>  
+        </div>
         <div className="container mx-auto text-center py-4">
           <h1 className=' text-2xl font-bold'>Authorized User</h1>
           <div className='details'>
-            {/* <h5>{session.user.name}</h5> */}
             <h5>{session.user.email}</h5>
           </div>
           <div className="flex justify-center">
-            <span className='icon flex items-center p-2 cursor-pointer hover:text-sky-600' onClick={handleSignOut}>Sign out &nbsp; <HiOutlineLogout size={25}/></span>
-            {/* <button onClick={handleSignOut} className='mt-5 px-10 py-1 rounded-sm '>Sign Out: <HiOutlineLogout size={25}/></button> */}
+            <button type='button' className='icon flex items-center p-2 hover:text-sky-600' onClick={handleSignOut}>Sign out &nbsp; <HiOutlineLogout size={25}/></button>
           </div>
-        </div>    
+        </div>
       </section>
   )
 }
@@ -275,7 +257,7 @@ export const getServerSideProps = async ({req, res}) =>{
       };
   }
   catch (error) {
-      console.log("this error:",error);
+      console.error(error);
       return {
           notFound: true
       }

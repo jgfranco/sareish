@@ -1,34 +1,46 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Sareish
 
-## Getting Started
+Source for [sareish.com](https://sareish.com): a link-in-bio homepage for Sareish's home decor and lifestyle content, plus a private editor for managing the links.
 
-First, run the development server:
+Built with Next.js (pages router), MongoDB (Mongoose), NextAuth (email + password) and Cloudinary for photo uploads. Deployed on Vercel.
+
+## Pages
+
+| Path | What it is |
+| --- | --- |
+| `/` | Homepage: list or photo view of the active links. Static, rebuilt every 60s and whenever a link is saved. |
+| `/about`, `/contact` | Static pages |
+| `/login` | Admin login |
+| `/linksEditor` | Add, edit, delete and reorder links (login required) |
+
+## API
+
+| Route | Auth | Purpose |
+| --- | --- | --- |
+| `/api/links` | yes | `GET` list, `POST` add, `PATCH` update, `DELETE` remove a link |
+| `/api/upload` | yes | Upload one image (max 10 MB) to Cloudinary, returns its URL |
+| `/api/clicks` | no | Counts a click on a homepage link |
+| `/api/auth/*` | | NextAuth |
+
+## Environment variables
+
+Set these in Vercel (Project → Settings → Environment Variables) and in `.env.local` for local development:
+
+| Name | Needed for |
+| --- | --- |
+| `MONGO_URL` | Everything (MongoDB connection string) |
+| `NEXTAUTH_SECRET` | Login. Generate with `openssl rand -base64 32` |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Photo uploads in the editor |
+
+`NEXTAUTH_URL` is only needed locally (`http://localhost:3000`); Vercel detects it automatically.
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+There is no public sign-up. Admin accounts live in the `users` collection in MongoDB (password hashed with bcrypt).
