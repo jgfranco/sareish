@@ -37,6 +37,7 @@ function User({ session, handleSignOut, links }){
 
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   // formik Hook
@@ -111,6 +112,11 @@ function User({ session, handleSignOut, links }){
   }
 
   async function onSubmit(values){
+    // saving mid-upload would store the link without its photo
+    if (uploading) {
+      setMessage('Wait for the photo to finish uploading, then save');
+      return;
+    }
     if (mode === 'add') await saveLink('POST', values, 'Link added');
     if (mode === 'edit') await saveLink('PATCH', values, 'Link updated');
   }
@@ -174,10 +180,11 @@ function User({ session, handleSignOut, links }){
                 </div>
 
                 <div className="col-span-4">
-                  <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} />
+                  <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} onUploadingChange={setUploading} />
                   {formik.values.photoUrl && (
                     <div className="mt-4">
                       <Image src={formik.values.photoUrl} alt="Photo preview" className="w-32 mx-auto mt-2 rounded-lg" width={75} height={75} />
+                      <p className="text-sm text-gray-600 mt-2">Press ✓ to save the photo with this link</p>
                     </div>
                   )}
 
@@ -196,8 +203,8 @@ function User({ session, handleSignOut, links }){
                         className='flex justify-center items-center w-10 h-10 rounded-full text-rose-600 hover:bg-rose-50' aria-label='Delete link'>
                         <HiOutlineTrash size={25}/></button>
                     )}
-                    <button type='submit' disabled={formik.isSubmitting}
-                      className='flex justify-center items-center w-10 h-10 rounded-full hover:bg-zinc-100' aria-label='Save link'>
+                    <button type='submit' disabled={formik.isSubmitting || uploading}
+                      className='flex justify-center items-center w-10 h-10 rounded-full hover:bg-zinc-100 disabled:opacity-30' aria-label='Save link'>
                       <HiOutlineCheckCircle size={25}/></button>
                   </div>
                 </div>

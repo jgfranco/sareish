@@ -24,8 +24,13 @@ async function shrinkImage(file) {
   }
 }
 
-export default function DragDropUpload({ onUploadComplete }) {
-  const [uploading, setUploading] = useState(false);
+export default function DragDropUpload({ onUploadComplete, onUploadingChange }) {
+  const [uploading, setUploadingState] = useState(false);
+
+  const setUploading = useCallback((value) => {
+    setUploadingState(value);
+    if (onUploadingChange) onUploadingChange(value);
+  }, [onUploadingChange]);
   const [error, setError] = useState("");
 
   const onDrop = useCallback(async (acceptedFiles) => {
@@ -59,7 +64,7 @@ export default function DragDropUpload({ onUploadComplete }) {
     } finally {
       setUploading(false);
     }
-  }, [onUploadComplete]);
+  }, [onUploadComplete, setUploading]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
