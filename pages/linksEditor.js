@@ -5,8 +5,6 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
-import Clicks from '../model/ClickSchema';
-import ClickStats from '../components/clickStats';
 import Layout from '../layouts/pagelayout';
 import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout, HiOutlineTrash, HiOutlineChevronUp, HiOutlineChevronDown, HiOutlineMenu }  from 'react-icons/hi'
 import { useState, useEffect } from 'react';
@@ -16,7 +14,7 @@ import { useRouter } from 'next/router';
 import DragDropUpload from '../components/uploadForm';
 import Image from 'next/image';
 
-export default function LinksEditor({links, stats}){
+export default function LinksEditor({links}){
     
   const { data: session } = useSession()
 
@@ -30,12 +28,12 @@ export default function LinksEditor({links, stats}){
           <title>Links Editor</title>
           <meta name="robots" content="noindex, nofollow" />
       </Head>
-      {session ? <User session={session} handleSignOut={handleSignOut} links={links} stats={stats} /> : <p>Restricted Access</p>}
+      {session ? <User session={session} handleSignOut={handleSignOut} links={links} /> : <p>Restricted Access</p>}
     </Layout>
   )
 }
 
-function User({ session, handleSignOut, links, stats }){
+function User({ session, handleSignOut, links }){
 
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
@@ -255,7 +253,6 @@ function User({ session, handleSignOut, links, stats }){
                   </div>
                 </div>
               ))}
-              <ClickStats links={sortedLinks} stats={stats} />
             </div>
           }
         </div>
@@ -290,24 +287,9 @@ export const getServerSideProps = async ({req, res}) =>{
       await connectMongo();
       const links = await Links.find(); // {active:true} to bring only active links
 
-      // clicks per link over the last 7 and 30 days
-      const now = Date.now();
-      const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000);
-      const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000);
-      const counts = await Clicks.aggregate([
-          { $match: { at: { $gte: since30 } } },
-          { $group: {
-              _id: '$link',
-              d30: { $sum: 1 },
-              d7: { $sum: { $cond: [{ $gte: ['$at', since7] }, 1, 0] } },
-          } },
-      ]);
-      const stats = Object.fromEntries(counts.map(c => [String(c._id), { d7: c.d7, d30: c.d30 }]));
-
       return {
           props: {
               links: JSON.parse(JSON.stringify(links)),
-              stats,
               session: session
           },
       };
