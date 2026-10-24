@@ -1,15 +1,17 @@
 import connectMongo from '../../../database/conn';
 import Links from '../../../model/LinkSchema';
+import requireSession from '../../../lib/requireSession';
 
 export default async function handler(req, res) {
-  console.log("handler has been called");
+  const session = await requireSession(req, res);
+  if (!session) return;
 
-  await connectMongo().catch(error => {
+  try {
+    await connectMongo();
+  } catch (error) {
     console.error("Connection error:", error);
     return res.status(500).json({ error: "Connection Failed...!" });
-  });
-
-  console.log("HTTP Method:", req.method);
+  }
 
   if (req.method === 'POST') {
     if (!req.body) return res.status(400).json({ error: "Don't have form data...!" });
@@ -39,8 +41,6 @@ export default async function handler(req, res) {
     const { _id, index, title, url, active, photoUrl } = req.body;
 
     try {
-      console.log("Updating link with:", { _id, index, title, url, active, photoUrl });
-
       const updateResult = await Links.updateOne(
         { _id },
         { index, title, url, active, photoUrl }
