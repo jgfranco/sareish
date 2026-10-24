@@ -3,9 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
 import { FaAmazon } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 
 export default function PageLayout( { children }){
+
+  const { data: session } = useSession();
+  const { pathname } = useRouter();
 
   return (
     <>
@@ -66,6 +71,18 @@ export default function PageLayout( { children }){
               </a>
           </div>
           </nav>
+          {/* admin menu, only when logged in */}
+          {session && (
+            <nav aria-label='Admin' className='flex gap-1 mx-5 px-1 text-sm border-b border-zinc-100'>
+              {[{ href: '/linksEditor', label: 'Links editor' }, { href: '/clicks', label: 'Clicks' }].map(item => (
+                <Link key={item.href} href={item.href}
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  className={`px-2 py-1 hover:bg-zinc-50 ${pathname === item.href ? 'text-rose-700 font-bold' : 'text-zinc-600'}`}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          )}
           {/* body of page */}
           <div className="flex flex-col flex-1">
               <div className="text-center py-4">

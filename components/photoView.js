@@ -14,6 +14,7 @@ export default function PhotoView({ links }) {
                 alt = {link.title}
                 caption = {link.title}
                 url={link.url}
+                badge={link.badge}
                 onClick={() => trackClick(link._id)}
                 tiltIndex={i}/>
             </li>

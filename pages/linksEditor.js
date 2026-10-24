@@ -5,8 +5,6 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
-import Clicks from '../model/ClickSchema';
-import ClickStats from '../components/clickStats';
 import Layout from '../layouts/pagelayout';
 import { HiOutlinePencilAlt, HiOutlinePlusCircle, HiOutlineXCircle, HiOutlineCheckCircle, HiOutlineLogout, HiOutlineTrash, HiOutlineChevronUp, HiOutlineChevronDown, HiOutlineMenu }  from 'react-icons/hi'
 import { useState, useEffect } from 'react';
@@ -15,8 +13,9 @@ import { linkValidate } from '../lib/validate';
 import { useRouter } from 'next/router';
 import DragDropUpload from '../components/uploadForm';
 import Image from 'next/image';
+import Badge from '../components/badge';
 
-export default function LinksEditor({links, stats}){
+export default function LinksEditor({links}){
     
   const { data: session } = useSession()
 
@@ -30,12 +29,12 @@ export default function LinksEditor({links, stats}){
           <title>Links Editor</title>
           <meta name="robots" content="noindex, nofollow" />
       </Head>
-      {session ? <User session={session} handleSignOut={handleSignOut} links={links} stats={stats} /> : <p>Restricted Access</p>}
+      {session ? <User session={session} handleSignOut={handleSignOut} links={links} /> : <p>Restricted Access</p>}
     </Layout>
   )
 }
 
-function User({ session, handleSignOut, links, stats }){
+function User({ session, handleSignOut, links }){
 
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
@@ -49,7 +48,8 @@ function User({ session, handleSignOut, links, stats }){
         url: '',
         active: true,
         index: '',
-        photoUrl:''
+        photoUrl:'',
+        badge: ''
     },
     validate: linkValidate,
     onSubmit
@@ -83,6 +83,7 @@ function User({ session, handleSignOut, links, stats }){
       active: String(link.active) === 'true',
       index: link.index ?? '',
       photoUrl: link.photoUrl || '',
+      badge: link.badge || '',
     }});
     setMessage('');
     setMode('edit');
@@ -100,6 +101,7 @@ function User({ session, handleSignOut, links, stats }){
       active: true,
       index: links.length,
       photoUrl: '',
+      badge: '',
     }});
     setMessage('');
     setMode('add');
@@ -196,6 +198,14 @@ function User({ session, handleSignOut, links, stats }){
                     {...formik.getFieldProps({ name: 'active', type: 'checkbox' })}
                   />
                 </div>
+                <div><label htmlFor="badge">badge:</label></div>
+                <div className='col-span-3 text-left'>
+                  <select id="badge" className='border border-zinc-200 rounded px-2 py-1' {...formik.getFieldProps('badge')}>
+                    <option value=''>None</option>
+                    <option value='New'>New</option>
+                    <option value='Featured'>Featured</option>
+                  </select>
+                </div>
 
                 <div className="col-span-4">
                   <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} onUploadingChange={setUploading} />
@@ -245,7 +255,7 @@ function User({ session, handleSignOut, links, stats }){
                     border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
                   <p className="px-3 text-left flex-1 min-w-0 truncate">
-                    {link.title}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
+                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
                     <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
                   </p>
                   <div className='flex items-center pr-2'>
@@ -255,7 +265,6 @@ function User({ session, handleSignOut, links, stats }){
                   </div>
                 </div>
               ))}
-              <ClickStats links={sortedLinks} stats={stats} />
             </div>
           }
         </div>
@@ -290,24 +299,9 @@ export const getServerSideProps = async ({req, res}) =>{
       await connectMongo();
       const links = await Links.find(); // {active:true} to bring only active links
 
-      // clicks per link over the last 7 and 30 days
-      const now = Date.now();
-      const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000);
-      const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000);
-      const counts = await Clicks.aggregate([
-          { $match: { at: { $gte: since30 } } },
-          { $group: {
-              _id: '$link',
-              d30: { $sum: 1 },
-              d7: { $sum: { $cond: [{ $gte: ['$at', since7] }, 1, 0] } },
-          } },
-      ]);
-      const stats = Object.fromEntries(counts.map(c => [String(c._id), { d7: c.d7, d30: c.d30 }]));
-
       return {
           props: {
               links: JSON.parse(JSON.stringify(links)),
-              stats,
               session: session
           },
       };

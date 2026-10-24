@@ -1,9 +1,10 @@
 import Image from "next/image";
+import Badge from "./badge";
 
 // fixed sequence so the tilt is the same on the server and the client
 const tilts = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2', 'rotate-0', '-rotate-3', 'rotate-3'];
 
-export default function PolaroidPhoto({ src, alt, caption, url, tiltIndex = 0, onClick }) {
+export default function PolaroidPhoto({ src, alt, caption, url, badge, tiltIndex = 0, onClick }) {
   const tilt = tilts[tiltIndex % tilts.length];
 
   return (
@@ -22,6 +23,7 @@ export default function PolaroidPhoto({ src, alt, caption, url, tiltIndex = 0, o
           className="object-cover brightness-95 contrast-110 saturate-75"
         />
         <div className="absolute inset-0 bg-noise opacity-10 mix-blend-overlay pointer-events-none" />
+        {badge && <Badge label={badge} className="absolute top-2 left-0" />}
       </div>
       {caption && (
       <p className="text-xs text-gray-700 mt-3 italic">{caption}</p>
