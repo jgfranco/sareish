@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
+import { FaAmazon } from 'react-icons/fa';
 
 
 export default function PageLayout( { children }){
@@ -32,10 +33,10 @@ export default function PageLayout( { children }){
       </Head>
 
       <main>
-        <div className="flex flex-col bg-zinc-50 h-full" >
-        <div className="mx-auto bg-white w-full sm:w-3/5 h-full">
+        <div className="flex flex-col bg-zinc-50 min-h-screen" >
+        <div className="flex flex-col mx-auto bg-white w-full sm:w-3/5 min-h-screen">
           {/* nav bar */}
-          <div className='flex flex-row justify-between my-2 mx-5 items-center'>
+          <nav className='flex flex-row justify-between my-2 mx-5 items-center'>
             <div className='flex gap-0'>
               <div className='p-2 hover:bg-zinc-50 text-zinc-600'>
                 <Link href="/">Home</Link>
@@ -52,25 +53,29 @@ export default function PageLayout( { children }){
               </div>
               */}
             </div>
-            <div className='flex gap-3'>
-              <Link href ="http://instagram.com/sareish" rel='me'>
-                  <Image src="/assets/instagram.svg" width={25} height={25} alt="instagram logo"></Image>
-              </Link>
-              <Link href="https://www.tiktok.com/@sareishh" rel='me'>
-                  <Image src="/assets/tiktok.svg"  width={25} height={25} alt= "tiktok logo"></Image>
-              </Link>    
+            <div className='flex gap-3 items-center'>
+              <a href="https://www.instagram.com/sareish" rel='me noopener noreferrer' target='_blank'>
+                  <Image src="/assets/instagram.svg" width={25} height={25} alt="Instagram"></Image>
+              </a>
+              <a href="https://www.tiktok.com/@sareishh" rel='me noopener noreferrer' target='_blank'>
+                  <Image src="/assets/tiktok.svg"  width={25} height={25} alt="TikTok"></Image>
+              </a>
+              <a href="https://www.amazon.com/shop/sareish" rel='me noopener noreferrer' target='_blank'
+                className='text-zinc-800 hover:text-zinc-600' aria-label="Amazon storefront">
+                  <FaAmazon size={23} aria-hidden="true" />
+              </a>
           </div>
-          </div>
+          </nav>
           {/* body of page */}
-          <div className="flex flex-col justify-evenly">
+          <div className="flex flex-col flex-1">
               <div className="text-center py-4">
                   {children}
               </div>
           </div>
           {/* footer */}
-          <div className='fixed bottom-2 right-4 text-right p-4 text-zinc-300'>
+          <footer className='text-right p-4 text-zinc-500 text-sm'>
             <p>© sareish.com</p>
-          </div>
+          </footer>
         </div>
     </div>
       </main>

@@ -12,9 +12,9 @@ export default function About() {
         image="https://sareish.com/assets/profileSareish.jpeg"
         />
 
-        <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-screen">
+        <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">
           <div className="flex justify-center mb-8"> 
-            <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
+            <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='Sareish' width={120} height={120}></Image>
           </div>
           <div>
                 <h1 className='text-gray-800 text-4xl font-bold py-4'>about me</h1>
