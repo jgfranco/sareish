@@ -13,6 +13,7 @@ import { linkValidate } from '../lib/validate';
 import { useRouter } from 'next/router';
 import DragDropUpload from '../components/uploadForm';
 import Image from 'next/image';
+import Badge from '../components/badge';
 
 export default function LinksEditor({links}){
     
@@ -47,7 +48,8 @@ function User({ session, handleSignOut, links }){
         url: '',
         active: true,
         index: '',
-        photoUrl:''
+        photoUrl:'',
+        badge: ''
     },
     validate: linkValidate,
     onSubmit
@@ -81,6 +83,7 @@ function User({ session, handleSignOut, links }){
       active: String(link.active) === 'true',
       index: link.index ?? '',
       photoUrl: link.photoUrl || '',
+      badge: link.badge || '',
     }});
     setMessage('');
     setMode('edit');
@@ -98,6 +101,7 @@ function User({ session, handleSignOut, links }){
       active: true,
       index: links.length,
       photoUrl: '',
+      badge: '',
     }});
     setMessage('');
     setMode('add');
@@ -194,6 +198,14 @@ function User({ session, handleSignOut, links }){
                     {...formik.getFieldProps({ name: 'active', type: 'checkbox' })}
                   />
                 </div>
+                <div><label htmlFor="badge">badge:</label></div>
+                <div className='col-span-3 text-left'>
+                  <select id="badge" className='border border-zinc-200 rounded px-2 py-1' {...formik.getFieldProps('badge')}>
+                    <option value=''>None</option>
+                    <option value='New'>New</option>
+                    <option value='Featured'>Featured</option>
+                  </select>
+                </div>
 
                 <div className="col-span-4">
                   <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} onUploadingChange={setUploading} />
@@ -243,7 +255,7 @@ function User({ session, handleSignOut, links }){
                     border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
                   <p className="px-3 text-left flex-1 min-w-0 truncate">
-                    {link.title}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
+                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
                     <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
                   </p>
                   <div className='flex items-center pr-2'>

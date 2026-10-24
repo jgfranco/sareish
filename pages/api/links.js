@@ -26,9 +26,10 @@ export default async function handler(req, res) {
     if (!req.body) return res.status(400).json({ error: "Don't have form data...!" });
 
     const { index, title, url, active, photoUrl } = req.body;
+    const badge = cleanBadge(req.body.badge);
 
     try {
-      const data = await Links.create({ index, title, url, active, photoUrl });
+      const data = await Links.create({ index, title, url, active, photoUrl, badge });
       await refreshHomepage(res);
       return res.status(201).json({ status: true, link: data });
     } catch (err) {
@@ -49,11 +50,12 @@ export default async function handler(req, res) {
     if (!req.body) return res.status(400).json({ error: "Don't have form data...!" });
 
     const { _id, index, title, url, active, photoUrl } = req.body;
+    const badge = cleanBadge(req.body.badge);
 
     try {
       const updateResult = await Links.updateOne(
         { _id },
-        { index, title, url, active, photoUrl }
+        { index, title, url, active, photoUrl, badge }
       );
       await refreshHomepage(res);
 
@@ -95,4 +97,9 @@ export default async function handler(req, res) {
   } else {
     res.status(405).json({ message: "HTTP method not allowed" });
   }
+}
+
+// only the badges the homepage knows how to show
+function cleanBadge(badge){
+  return ['New', 'Featured'].includes(badge) ? badge : '';
 }
