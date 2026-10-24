@@ -7,6 +7,7 @@ import LinksView from '../components/linksView';
 import PhotoView from '../components/photoView';
 import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
 import Seo from '../components/Seo';
+import EmailSignup from '../components/emailSignup';
 
 // shown when the links can't be loaded from the database
 const fallbackLinks = [
@@ -58,6 +59,7 @@ function Guest({links}){
           </div>
         )}
         {view === "photos" && hasPhotos ? <PhotoView links={sortedLinks} /> : <LinksView links={sortedLinks} />}
+        <EmailSignup />
       </section>
   )
 }

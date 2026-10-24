@@ -74,7 +74,7 @@ export default function PageLayout( { children }){
           {/* admin menu, only when logged in */}
           {session && (
             <nav aria-label='Admin' className='flex gap-1 mx-5 px-1 text-sm border-b border-zinc-100'>
-              {[{ href: '/linksEditor', label: 'Links editor' }, { href: '/clicks', label: 'Clicks' }].map(item => (
+              {[{ href: '/linksEditor', label: 'Links editor' }, { href: '/clicks', label: 'Clicks' }, { href: '/subscribers', label: 'Subscribers' }].map(item => (
                 <Link key={item.href} href={item.href}
                   aria-current={pathname === item.href ? 'page' : undefined}
                   className={`px-2 py-1 hover:bg-zinc-50 ${pathname === item.href ? 'text-rose-700 font-bold' : 'text-zinc-600'}`}>
