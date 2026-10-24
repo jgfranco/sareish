@@ -6,7 +6,7 @@
 
 @layer components {
   #__next {
-      @apply h-auto bg-red-500;
+      @apply h-auto;
   }
   html,
   body {

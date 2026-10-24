@@ -1,102 +1,71 @@
-
 import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Layout from '../layouts/pagelayout';
 import Image from 'next/image';
-/*import { linkValidate } from '../lib/validate';
-import { useFormik } from 'formik'; */
 import {useState} from 'react';
 import LinksView from '../components/linksView';
 import PhotoView from '../components/photoView';
-import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi"; 
+import { HiOutlineViewList, HiOutlineViewGrid } from "react-icons/hi";
 import Seo from '../components/Seo';
+
+// shown when the links can't be loaded from the database
+const fallbackLinks = [
+  { _id: 'instagram', title: 'Instagram', url: 'https://www.instagram.com/sareish' },
+  { _id: 'tiktok', title: 'TikTok', url: 'https://www.tiktok.com/@sareishh' },
+  { _id: 'amazon', title: 'My Amazon storefront', url: 'https://www.amazon.com/shop/sareish' },
+];
 
 export default function Home( {links}) {
   return (
     <Layout>
-      <Seo 
+      <Seo
         title="Home"
         description="Discover home decor, and lifestyle content by Sareish."
         canonical="https://sareish.com/"
         image="https://sareish.com/assets/profileSareish.jpeg"
       />
-      {Guest( {links})}    
+      <Guest links={links} />
     </Layout>
   )
 }
 
-// Guest 
+// Guest
 function Guest({links}){
   const [view, setView] = useState("list");
 
-  // sort links by index
-  links = links.sort(function(a, b) {
-    return b.index - a.index;
-  });
+  // sort links by index, highest first
+  const sortedLinks = [...links].sort((a, b) => b.index - a.index);
+  const hasPhotos = sortedLinks.some(link => link.photoUrl);
 
-  /*
-  const formik = useFormik({
-    initialValues: {
-        title : '',
-        url: '',
-        active: '',
-        index: ''
-    },
-    validate: linkValidate,
-    onSubmit
-  })   
-
-  function onLinkClick(e, link){
-    const newWindow = window.open(link.url, '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null
-    e.preventDefault();
-
-    formik.values._id = link._id
-    formik.values.title = link.title;
-    formik.values.url = link.url;
-    link.active === 'true' ? formik.values.active = true : formik.values.active = false;
-    formik.values.index = link.index;
-    onSubmit(formik.values);
-  }
-
-  async function onSubmit(values){
-    const options = {
-      method: "PATCH",
-      headers : { 'Content-Type': 'application/json'},
-      body: JSON.stringify(values)
-    }
-    await fetch('/api/auth/clicks', options)
-      .then(res => res.json())
-  }
-  */
+  const toggleClass = (active) =>
+    `flex items-center justify-center w-10 h-10 rounded-full ${active ? 'text-rose-950 bg-rose-50' : 'text-zinc-400 hover:text-zinc-600'}`;
 
   return (
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2 h-fit">
-        <div className="flex justify-center mb-8"> 
-          <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='profile picture' width={120} height={120}></Image>
+        <div className="flex justify-center mb-8">
+          <Image className='rounded-full' src='/assets/profileSareish.jpeg' alt='Sareish' width={120} height={120} priority></Image>
         </div>
-        <div className="flex justify-end">
-          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("list")}>
-            <HiOutlineViewList size={25}/>
+        {hasPhotos && (
+          <div className="flex justify-end gap-1">
+            <button type="button" className={toggleClass(view === "list")} onClick={() => setView("list")}
+              aria-label="List view" aria-pressed={view === "list"}>
+              <HiOutlineViewList size={25}/>
+            </button>
+            <button type="button" className={toggleClass(view === "photos")} onClick={() => setView("photos")}
+              aria-label="Photo view" aria-pressed={view === "photos"}>
+              <HiOutlineViewGrid size={25}/>
+            </button>
           </div>
-          <div className='w-10 h-10 cursor-pointer rounded-full' onClick={() => setView("photos")}>
-            <HiOutlineViewGrid size={25}/>
-          </div>
-        </div>
-        {view === "list" ? <LinksView links={links} /> : <PhotoView links={links} />}
+        )}
+        {view === "photos" && hasPhotos ? <PhotoView links={sortedLinks} /> : <LinksView links={sortedLinks} />}
       </section>
   )
 }
 
 export const getServerSideProps = async () =>{
   try{
-    //console.log("Connecting to Mongo");
     await connectMongo();
-    //console.log("Connected to Mongo");
-  
-    //console.log("Fetching documents");
     const links = await Links.find({active: true}); // bring only active links
-    //console.log("Documents fetched")
 
     return {
       props: {
@@ -107,7 +76,9 @@ export const getServerSideProps = async () =>{
   catch (error) {
     console.log(error);
     return {
-      notFound: true
-    }
+      props: {
+        links: fallbackLinks,
+      },
+    };
   }
 }
