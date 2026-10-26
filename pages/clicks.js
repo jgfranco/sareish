@@ -6,9 +6,10 @@ import connectMongo from '../database/conn';
 import Links from '../model/LinkSchema';
 import Clicks from '../model/ClickSchema';
 import ClickStats from '../components/clickStats';
+import SourceStats from '../components/sourceStats';
 import Layout from '../layouts/pagelayout';
 
-export default function ClicksPage({links, stats}){
+export default function ClicksPage({links, stats, sources}){
 
   const { data: session } = useSession()
 
@@ -21,6 +22,7 @@ export default function ClicksPage({links, stats}){
       {session
         ? <section className="container mx-auto py-10 w-4/5 sm:w-1/2">
             <ClickStats links={links} stats={stats} />
+            <SourceStats sources={sources} />
           </section>
         : <p>Restricted Access</p>}
     </Layout>
@@ -58,10 +60,22 @@ export const getServerSideProps = async ({req, res}) =>{
       ]);
       const stats = Object.fromEntries(counts.map(c => [String(c._id), { d7: c.d7, d30: c.d30 }]));
 
+      // the same counts per source; clicks from before sources were recorded have none
+      const bySource = await Clicks.aggregate([
+          { $match: { at: { $gte: since30 }, source: { $exists: true } } },
+          { $group: {
+              _id: '$source',
+              d30: { $sum: 1 },
+              d7: { $sum: { $cond: [{ $gte: ['$at', since7] }, 1, 0] } },
+          } },
+      ]);
+      const sources = bySource.map(s => ({ source: s._id, d7: s.d7, d30: s.d30 }));
+
       return {
           props: {
               links: JSON.parse(JSON.stringify(links)),
               stats,
+              sources,
               session: session
           },
       };
