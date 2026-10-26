@@ -23,7 +23,7 @@ export default function Home( {links}) {
         title="Home"
         description="Sareish shares home decor ideas, styling tips, and favorite finds for creating beautiful, romantic spaces. Shop her Amazon storefront and follow along on Instagram and TikTok."
         canonical="https://sareish.com/"
-        image="https://sareish.com/assets/profileSareish.jpeg"
+        image="https://sareish.com/assets/share.jpg"
       />
       <Guest links={links} />
     </Layout>
