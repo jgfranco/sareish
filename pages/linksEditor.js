@@ -39,6 +39,7 @@ function User({ session, handleSignOut, links }){
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const router = useRouter();
 
   // formik Hook
@@ -49,7 +50,9 @@ function User({ session, handleSignOut, links }){
         active: true,
         index: '',
         photoUrl:'',
-        badge: ''
+        badge: '',
+        startAt: '',
+        endAt: ''
     },
     validate: linkValidate,
     onSubmit
@@ -58,6 +61,8 @@ function User({ session, handleSignOut, links }){
   // sort links descending; kept in state so it can be reordered
   const [sortedLinks, setSortedLinks] = useState(() => [...links].sort((a, b) => b.index - a.index));
   const [dragId, setDragId] = useState(null);
+  const lastCheckAt = links.reduce((latest, l) => (l.check?.at && l.check.at > latest ? l.check.at : latest), '');
+  const lastCheck = lastCheckAt && new Date(lastCheckAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   useEffect(() => {
     setSortedLinks([...links].sort((a, b) => b.index - a.index));
   }, [links]);
@@ -84,6 +89,8 @@ function User({ session, handleSignOut, links }){
       index: link.index ?? '',
       photoUrl: link.photoUrl || '',
       badge: link.badge || '',
+      startAt: toLocalInput(link.startAt),
+      endAt: toLocalInput(link.endAt),
     }});
     setMessage('');
     setMode('edit');
@@ -102,6 +109,8 @@ function User({ session, handleSignOut, links }){
       index: links.length,
       photoUrl: '',
       badge: '',
+      startAt: '',
+      endAt: '',
     }});
     setMessage('');
     setMode('add');
@@ -137,8 +146,23 @@ function User({ session, handleSignOut, links }){
       setMessage('Wait for the photo to finish uploading, then save');
       return;
     }
-    if (mode === 'add') await saveLink('POST', values, 'Link added');
-    if (mode === 'edit') await saveLink('PATCH', values, 'Link updated');
+    // the date inputs are in local time; send them as exact times
+    const toSend = { ...values, startAt: fromLocalInput(values.startAt), endAt: fromLocalInput(values.endAt) };
+    if (mode === 'add') await saveLink('POST', toSend, 'Link added');
+    if (mode === 'edit') await saveLink('PATCH', toSend, 'Link updated');
+  }
+
+  async function handleCheckLinks(){
+    setChecking(true);
+    const res = await fetch('/api/check-links', { method: 'POST' }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    setChecking(false);
+    if (!res?.ok) {
+      setMessage(data?.error || 'Link check failed, please try again');
+      return;
+    }
+    setMessage(data.broken ? `Checked ${data.checked} links: ${data.broken} look broken` : `Checked ${data.checked} links: all fine`);
+    router.replace(router.asPath);
   }
 
   async function handleDelete(){
@@ -206,6 +230,16 @@ function User({ session, handleSignOut, links }){
                     <option value='Featured'>Featured</option>
                   </select>
                 </div>
+                <div><label htmlFor="startAt">show from:</label></div>
+                <div className='col-span-3 text-left'>
+                  <input id="startAt" type="datetime-local" className='border border-zinc-200 rounded px-2 py-1 max-w-full' {...formik.getFieldProps('startAt')} />
+                </div>
+                <div><label htmlFor="endAt">hide after:</label></div>
+                <div className='col-span-3 text-left'>
+                  <input id="endAt" type="datetime-local" className='border border-zinc-200 rounded px-2 py-1 max-w-full' {...formik.getFieldProps('endAt')} />
+                  <p className='text-xs text-zinc-500 mt-1'>Optional. Leave empty to always show the link.</p>
+                  {formik.errors.endAt && <span className='text-rose-500 block'>{formik.errors.endAt}</span>}
+                </div>
 
                 <div className="col-span-4">
                   <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} onUploadingChange={setUploading} />
@@ -244,6 +278,13 @@ function User({ session, handleSignOut, links }){
                 <HiOutlinePlusCircle  size={25}/>
               </button>
               <p className='text-xs text-zinc-500 mt-2'>Drag a link (or use the arrows) to change its position on the homepage.</p>
+              <div className='flex items-center justify-center gap-2 mt-2 text-xs text-zinc-500'>
+                <span suppressHydrationWarning>{lastCheck ? `Links last checked ${lastCheck}` : 'Links are checked for problems every Monday'}</span>
+                <button type='button' onClick={handleCheckLinks} disabled={checking}
+                  className='px-2 py-0.5 rounded-full border border-zinc-200 hover:bg-zinc-100 disabled:opacity-50'>
+                  {checking ? 'Checking…' : 'Check now'}
+                </button>
+              </div>
               {sortedLinks.map((link, i) =>(
                 <div key = {link._id}
                     draggable
@@ -254,10 +295,14 @@ function User({ session, handleSignOut, links }){
                     className={`flex flex-row items-center justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 my-2 rounded-full
                     border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
-                  <p className="px-3 text-left flex-1 min-w-0 truncate">
-                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
-                    <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
-                  </p>
+                  <div className="px-3 text-left flex-1 min-w-0">
+                    <p className='truncate'>{link.title}{link.badge && <Badge label={link.badge} />}</p>
+                    <p className='truncate text-xs text-zinc-400'>
+                      {link.check?.status === 'broken' && <span className='text-rose-700 font-bold' title={`The page answered ${link.check.code || 'with no such site'}`}>broken link · </span>}
+                      {String(link.active) !== 'true' ? <span>hidden · </span> : <ScheduleNote link={link} />}
+                      {(link.url || "").replace(/^https?:\/\//, '')}
+                    </p>
+                  </div>
                   <div className='flex items-center pr-2'>
                     <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i - 1)} disabled={i === 0} aria-label={`Move ${link.title} up`}><HiOutlineChevronUp size={20} /></button>
                     <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i + 1)} disabled={i === sortedLinks.length - 1} aria-label={`Move ${link.title} down`}><HiOutlineChevronDown size={20} /></button>
@@ -281,6 +326,28 @@ function User({ session, handleSignOut, links }){
   )
 }
 
+
+// "starts Nov 3" or "ended" under links with a schedule
+function ScheduleNote({ link }){
+  const now = Date.now();
+  const format = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-600' suppressHydrationWarning>starts {format(link.startAt)} · </span>;
+  if (link.endAt && new Date(link.endAt) <= now) return <span className='text-zinc-600'>ended · </span>;
+  if (link.endAt) return <span className='text-zinc-600' suppressHydrationWarning>until {format(link.endAt)} · </span>;
+  return null;
+}
+
+// stored time -> value for a datetime-local input, in the browser's time zone
+function toLocalInput(value){
+  if (!value) return '';
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+// datetime-local input value -> exact time, or null when empty
+function fromLocalInput(value){
+  return value ? new Date(value).toISOString() : null;
+}
 
 export const getServerSideProps = async ({req, res}) =>{
 

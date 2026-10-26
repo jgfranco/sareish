@@ -9,7 +9,7 @@ export default function About() {
         title="About Me"
         description="Get to know Sareish — the creator behind the home decor brand. Learn about her passion for beauty, design, and lifestyle inspiration."
         canonical="https://sareish.com/about"
-        image="https://sareish.com/assets/profileSareish.jpeg"
+        image="https://sareish.com/assets/share.jpg"
         />
 
         <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">

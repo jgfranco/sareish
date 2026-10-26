@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import connectMongo from '../../database/conn';
 import Links from '../../model/LinkSchema';
 import Clicks from '../../model/ClickSchema';
+import { clickSources } from '../../lib/clickSource';
 
 // counts a click on a homepage link; called with navigator.sendBeacon
 export default async function handler(req, res) {
@@ -14,6 +15,7 @@ export default async function handler(req, res) {
     try { body = JSON.parse(body); } catch { body = {}; }
   }
   const { _id } = body || {};
+  const source = clickSources.includes(body?.source) ? body.source : 'other';
   if (!mongoose.isValidObjectId(_id)) {
     return res.status(400).json({ error: "Invalid link id" });
   }
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
     await connectMongo();
     await Promise.all([
       Links.updateOne({ _id }, { $inc: { clicks: 1 } }),
-      Clicks.create({ link: _id }),
+      Clicks.create({ link: _id, source }),
     ]);
     return res.status(204).end();
   } catch (err) {

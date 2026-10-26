@@ -8,7 +8,7 @@ export default function Contact() {
         title="Contact"
         description="Get in touch with Sareish for brand collaborations, business inquiries, or general questions. Reach out via email today."
         canonical="https://sareish.com/contact"
-        image="https://sareish.com/assets/profileSareish.jpeg"
+        image="https://sareish.com/assets/share.jpg"
       />
 
       <section className="container mx-auto text-center py-10 w-4/5 sm:w-1/2">

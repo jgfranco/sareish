@@ -5,10 +5,23 @@ import { authOptions } from "./api/auth/[...nextauth]"
 import connectMongo from '../database/conn';
 import Subscribers from '../model/SubscriberSchema';
 import Layout from '../layouts/pagelayout';
+import { kitEnabled } from '../lib/kit';
+import { useState } from 'react';
 
-export default function SubscribersPage({total, recent}){
+export default function SubscribersPage({total, recent, kitConnected}){
 
   const { data: session } = useSession()
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+
+  async function handleSync(){
+    setSyncing(true);
+    setSyncMessage('');
+    const res = await fetch('/api/subscribers', { method: 'POST' }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    setSyncing(false);
+    setSyncMessage(res?.ok ? `Copied ${data.added} of ${data.total} to Kit` : (data?.error || 'Copying to Kit failed, please try again'));
+  }
 
   return (
     <Layout>
@@ -24,6 +37,18 @@ export default function SubscribersPage({total, recent}){
             </div>
             <p className='text-3xl font-bold text-zinc-900'>{total}</p>
             <p className='text-sm text-zinc-500 mb-6'>people have signed up</p>
+            <div className='mb-6 p-3 rounded-lg bg-zinc-50 text-sm text-zinc-600'>
+              {kitConnected
+                ? <>
+                    <p>Connected to Kit. New signups are added there automatically, so you can email them from Kit.</p>
+                    <button type='button' onClick={handleSync} disabled={syncing}
+                      className='mt-2 px-3 py-1 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 disabled:opacity-50'>
+                      {syncing ? 'Copying…' : 'Copy everyone to Kit'}
+                    </button>
+                    {syncMessage && <p className='mt-2' role='status'>{syncMessage}</p>}
+                  </>
+                : <p>Not connected to Kit yet. Add a KIT_API_KEY in Vercel to send emails to this list from Kit.</p>}
+            </div>
             {recent.length > 0 && (
               <>
                 <h2 className='text-sm font-bold text-zinc-600 mb-2'>Latest signups</h2>
@@ -66,6 +91,7 @@ export const getServerSideProps = async ({req, res}) =>{
       return {
           props: {
               total,
+              kitConnected: kitEnabled(),
               recent: recent.map(s => ({ email: s.email, at: s.at.toISOString() })),
               session: session
           },

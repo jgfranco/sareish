@@ -1,5 +1,6 @@
 import connectMongo from '../../database/conn';
 import Subscribers from '../../model/SubscriberSchema';
+import { addToKit } from '../../lib/kit';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -22,6 +23,8 @@ export default async function handler(req, res) {
     await connectMongo();
     // signing up twice is fine, it just keeps the first date
     await Subscribers.updateOne({ email: clean }, { $setOnInsert: { email: clean, at: new Date() } }, { upsert: true });
+    // the database copy is what counts; Kit is best effort and can be re-synced from /subscribers
+    await addToKit(clean);
     return res.status(200).json({ status: true });
   } catch (err) {
     console.error("Subscribe error:", err);

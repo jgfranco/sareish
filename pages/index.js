@@ -23,7 +23,7 @@ export default function Home( {links}) {
         title="Home"
         description="Sareish shares home decor ideas, styling tips, and favorite finds for creating beautiful, romantic spaces. Shop her Amazon storefront and follow along on Instagram and TikTok."
         canonical="https://sareish.com/"
-        image="https://sareish.com/assets/profileSareish.jpeg"
+        image="https://sareish.com/assets/share.jpg"
       />
       <Guest links={links} />
     </Layout>
@@ -68,7 +68,15 @@ function Guest({links}){
 export const getStaticProps = async () =>{
   try{
     await connectMongo();
-    const links = await Links.find({active: true}); // bring only active links
+    // only active links that are inside their schedule, if they have one
+    const now = new Date();
+    const links = await Links.find({
+      active: true,
+      $and: [
+        { $or: [{ startAt: null }, { startAt: { $lte: now } }] },
+        { $or: [{ endAt: null }, { endAt: { $gt: now } }] },
+      ],
+    });
 
     return {
       props: {
