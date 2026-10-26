@@ -295,11 +295,14 @@ function User({ session, handleSignOut, links }){
                     className={`flex flex-row items-center justify-between w-full bg-zinc-50 hover:bg-zinc-100 py-3 my-2 rounded-full
                     border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
-                  <p className="px-3 text-left flex-1 min-w-0 truncate">
-                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' ? <span className='text-zinc-400'> (hidden)</span> : <ScheduleNote link={link} />}
-                    {link.check?.status === 'broken' && <span className='text-rose-700 font-bold' title={`The page answered ${link.check.code || 'with no such site'}`}> · broken link</span>}
-                    <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
-                  </p>
+                  <div className="px-3 text-left flex-1 min-w-0">
+                    <p className='truncate'>{link.title}{link.badge && <Badge label={link.badge} />}</p>
+                    <p className='truncate text-xs text-zinc-400'>
+                      {link.check?.status === 'broken' && <span className='text-rose-700 font-bold' title={`The page answered ${link.check.code || 'with no such site'}`}>broken link · </span>}
+                      {String(link.active) !== 'true' ? <span>hidden · </span> : <ScheduleNote link={link} />}
+                      {(link.url || "").replace(/^https?:\/\//, '')}
+                    </p>
+                  </div>
                   <div className='flex items-center pr-2'>
                     <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i - 1)} disabled={i === 0} aria-label={`Move ${link.title} up`}><HiOutlineChevronUp size={20} /></button>
                     <button type='button' className='p-1 disabled:opacity-20' onClick={() => moveLink(link._id, i + 1)} disabled={i === sortedLinks.length - 1} aria-label={`Move ${link.title} down`}><HiOutlineChevronDown size={20} /></button>
@@ -324,13 +327,13 @@ function User({ session, handleSignOut, links }){
 }
 
 
-// "(starts Nov 3)" or "(ended)" next to links with a schedule
+// "starts Nov 3" or "ended" under links with a schedule
 function ScheduleNote({ link }){
   const now = Date.now();
   const format = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-400' suppressHydrationWarning> (starts {format(link.startAt)})</span>;
-  if (link.endAt && new Date(link.endAt) <= now) return <span className='text-zinc-400'> (ended)</span>;
-  if (link.endAt) return <span className='text-zinc-400' suppressHydrationWarning> (until {format(link.endAt)})</span>;
+  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-600' suppressHydrationWarning>starts {format(link.startAt)} · </span>;
+  if (link.endAt && new Date(link.endAt) <= now) return <span className='text-zinc-600'>ended · </span>;
+  if (link.endAt) return <span className='text-zinc-600' suppressHydrationWarning>until {format(link.endAt)} · </span>;
   return null;
 }
 
