@@ -37,18 +37,17 @@ export default function SubscribersPage({total, recent, kitConnected}){
             </div>
             <p className='text-3xl font-bold text-zinc-900'>{total}</p>
             <p className='text-sm text-zinc-500 mb-6'>people have signed up</p>
-            <div className='mb-6 p-3 rounded-lg bg-zinc-50 text-sm text-zinc-600'>
-              {kitConnected
-                ? <>
-                    <p>Connected to Kit. New signups are added there automatically, so you can email them from Kit.</p>
-                    <button type='button' onClick={handleSync} disabled={syncing}
-                      className='mt-2 px-3 py-1 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 disabled:opacity-50'>
-                      {syncing ? 'Copying…' : 'Copy everyone to Kit'}
-                    </button>
-                    {syncMessage && <p className='mt-2' role='status'>{syncMessage}</p>}
-                  </>
-                : <p>Not connected to Kit yet. Add a KIT_API_KEY in Vercel to send emails to this list from Kit.</p>}
-            </div>
+            {/* only shown once a KIT_API_KEY is set in Vercel */}
+            {kitConnected && (
+              <div className='mb-6 p-3 rounded-lg bg-zinc-50 text-sm text-zinc-600'>
+                <p>Connected to Kit. New signups are added there automatically, so you can email them from Kit.</p>
+                <button type='button' onClick={handleSync} disabled={syncing}
+                  className='mt-2 px-3 py-1 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 disabled:opacity-50'>
+                  {syncing ? 'Copying…' : 'Copy everyone to Kit'}
+                </button>
+                {syncMessage && <p className='mt-2' role='status'>{syncMessage}</p>}
+              </div>
+            )}
             {recent.length > 0 && (
               <>
                 <h2 className='text-sm font-bold text-zinc-600 mb-2'>Latest signups</h2>
