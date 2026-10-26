@@ -39,6 +39,7 @@ function User({ session, handleSignOut, links }){
   const [mode, setMode] = useState(null); // null, 'add' or 'edit'
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const router = useRouter();
 
   // formik Hook
@@ -60,6 +61,8 @@ function User({ session, handleSignOut, links }){
   // sort links descending; kept in state so it can be reordered
   const [sortedLinks, setSortedLinks] = useState(() => [...links].sort((a, b) => b.index - a.index));
   const [dragId, setDragId] = useState(null);
+  const lastCheckAt = links.reduce((latest, l) => (l.check?.at && l.check.at > latest ? l.check.at : latest), '');
+  const lastCheck = lastCheckAt && new Date(lastCheckAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   useEffect(() => {
     setSortedLinks([...links].sort((a, b) => b.index - a.index));
   }, [links]);
@@ -147,6 +150,19 @@ function User({ session, handleSignOut, links }){
     const toSend = { ...values, startAt: fromLocalInput(values.startAt), endAt: fromLocalInput(values.endAt) };
     if (mode === 'add') await saveLink('POST', toSend, 'Link added');
     if (mode === 'edit') await saveLink('PATCH', toSend, 'Link updated');
+  }
+
+  async function handleCheckLinks(){
+    setChecking(true);
+    const res = await fetch('/api/check-links', { method: 'POST' }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    setChecking(false);
+    if (!res?.ok) {
+      setMessage(data?.error || 'Link check failed, please try again');
+      return;
+    }
+    setMessage(data.broken ? `Checked ${data.checked} links: ${data.broken} look broken` : `Checked ${data.checked} links: all fine`);
+    router.replace(router.asPath);
   }
 
   async function handleDelete(){
@@ -262,6 +278,13 @@ function User({ session, handleSignOut, links }){
                 <HiOutlinePlusCircle  size={25}/>
               </button>
               <p className='text-xs text-zinc-500 mt-2'>Drag a link (or use the arrows) to change its position on the homepage.</p>
+              <div className='flex items-center justify-center gap-2 mt-2 text-xs text-zinc-500'>
+                <span suppressHydrationWarning>{lastCheck ? `Links last checked ${lastCheck}` : 'Links are checked for problems every Monday'}</span>
+                <button type='button' onClick={handleCheckLinks} disabled={checking}
+                  className='px-2 py-0.5 rounded-full border border-zinc-200 hover:bg-zinc-100 disabled:opacity-50'>
+                  {checking ? 'Checking…' : 'Check now'}
+                </button>
+              </div>
               {sortedLinks.map((link, i) =>(
                 <div key = {link._id}
                     draggable
@@ -274,6 +297,7 @@ function User({ session, handleSignOut, links }){
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
                   <p className="px-3 text-left flex-1 min-w-0 truncate">
                     {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' ? <span className='text-zinc-400'> (hidden)</span> : <ScheduleNote link={link} />}
+                    {link.check?.status === 'broken' && <span className='text-rose-700 font-bold' title={`The page answered ${link.check.code || 'with no such site'}`}> · broken link</span>}
                     <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
                   </p>
                   <div className='flex items-center pr-2'>
@@ -304,9 +328,9 @@ function User({ session, handleSignOut, links }){
 function ScheduleNote({ link }){
   const now = Date.now();
   const format = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-400'> (starts {format(link.startAt)})</span>;
+  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-400' suppressHydrationWarning> (starts {format(link.startAt)})</span>;
   if (link.endAt && new Date(link.endAt) <= now) return <span className='text-zinc-400'> (ended)</span>;
-  if (link.endAt) return <span className='text-zinc-400'> (until {format(link.endAt)})</span>;
+  if (link.endAt) return <span className='text-zinc-400' suppressHydrationWarning> (until {format(link.endAt)})</span>;
   return null;
 }
 
