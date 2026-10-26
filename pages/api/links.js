@@ -27,9 +27,10 @@ export default async function handler(req, res) {
 
     const { index, title, url, active, photoUrl } = req.body;
     const badge = cleanBadge(req.body.badge);
+    const startAt = toDate(req.body.startAt), endAt = toDate(req.body.endAt);
 
     try {
-      const data = await Links.create({ index, title, url, active, photoUrl, badge });
+      const data = await Links.create({ index, title, url, active, photoUrl, badge, startAt, endAt });
       await refreshHomepage(res);
       return res.status(201).json({ status: true, link: data });
     } catch (err) {
@@ -51,11 +52,12 @@ export default async function handler(req, res) {
 
     const { _id, index, title, url, active, photoUrl } = req.body;
     const badge = cleanBadge(req.body.badge);
+    const startAt = toDate(req.body.startAt), endAt = toDate(req.body.endAt);
 
     try {
       const updateResult = await Links.updateOne(
         { _id },
-        { index, title, url, active, photoUrl, badge }
+        { index, title, url, active, photoUrl, badge, startAt, endAt }
       );
       await refreshHomepage(res);
 
@@ -102,4 +104,10 @@ export default async function handler(req, res) {
 // only the badges the homepage knows how to show
 function cleanBadge(badge){
   return ['New', 'Featured'].includes(badge) ? badge : '';
+}
+
+// a date from the editor, or null to clear it
+function toDate(value){
+  const date = value ? new Date(value) : null;
+  return date && !isNaN(date) ? date : null;
 }

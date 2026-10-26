@@ -68,7 +68,15 @@ function Guest({links}){
 export const getStaticProps = async () =>{
   try{
     await connectMongo();
-    const links = await Links.find({active: true}); // bring only active links
+    // only active links that are inside their schedule, if they have one
+    const now = new Date();
+    const links = await Links.find({
+      active: true,
+      $and: [
+        { $or: [{ startAt: null }, { startAt: { $lte: now } }] },
+        { $or: [{ endAt: null }, { endAt: { $gt: now } }] },
+      ],
+    });
 
     return {
       props: {

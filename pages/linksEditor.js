@@ -49,7 +49,9 @@ function User({ session, handleSignOut, links }){
         active: true,
         index: '',
         photoUrl:'',
-        badge: ''
+        badge: '',
+        startAt: '',
+        endAt: ''
     },
     validate: linkValidate,
     onSubmit
@@ -84,6 +86,8 @@ function User({ session, handleSignOut, links }){
       index: link.index ?? '',
       photoUrl: link.photoUrl || '',
       badge: link.badge || '',
+      startAt: toLocalInput(link.startAt),
+      endAt: toLocalInput(link.endAt),
     }});
     setMessage('');
     setMode('edit');
@@ -102,6 +106,8 @@ function User({ session, handleSignOut, links }){
       index: links.length,
       photoUrl: '',
       badge: '',
+      startAt: '',
+      endAt: '',
     }});
     setMessage('');
     setMode('add');
@@ -137,8 +143,10 @@ function User({ session, handleSignOut, links }){
       setMessage('Wait for the photo to finish uploading, then save');
       return;
     }
-    if (mode === 'add') await saveLink('POST', values, 'Link added');
-    if (mode === 'edit') await saveLink('PATCH', values, 'Link updated');
+    // the date inputs are in local time; send them as exact times
+    const toSend = { ...values, startAt: fromLocalInput(values.startAt), endAt: fromLocalInput(values.endAt) };
+    if (mode === 'add') await saveLink('POST', toSend, 'Link added');
+    if (mode === 'edit') await saveLink('PATCH', toSend, 'Link updated');
   }
 
   async function handleDelete(){
@@ -206,6 +214,16 @@ function User({ session, handleSignOut, links }){
                     <option value='Featured'>Featured</option>
                   </select>
                 </div>
+                <div><label htmlFor="startAt">show from:</label></div>
+                <div className='col-span-3 text-left'>
+                  <input id="startAt" type="datetime-local" className='border border-zinc-200 rounded px-2 py-1 max-w-full' {...formik.getFieldProps('startAt')} />
+                </div>
+                <div><label htmlFor="endAt">hide after:</label></div>
+                <div className='col-span-3 text-left'>
+                  <input id="endAt" type="datetime-local" className='border border-zinc-200 rounded px-2 py-1 max-w-full' {...formik.getFieldProps('endAt')} />
+                  <p className='text-xs text-zinc-500 mt-1'>Optional. Leave empty to always show the link.</p>
+                  {formik.errors.endAt && <span className='text-rose-500 block'>{formik.errors.endAt}</span>}
+                </div>
 
                 <div className="col-span-4">
                   <DragDropUpload onUploadComplete={(url) => setPhotoUrl(url)} onUploadingChange={setUploading} />
@@ -255,7 +273,7 @@ function User({ session, handleSignOut, links }){
                     border-2 border-zinc-100 hover:border-zinc-200 hover:border-dashed text-rose-950 ${dragId === link._id ? 'opacity-40' : ''}`}>
                   <span className='pl-4 text-zinc-400 cursor-grab' aria-hidden='true'><HiOutlineMenu size={20} /></span>
                   <p className="px-3 text-left flex-1 min-w-0 truncate">
-                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' && <span className='text-zinc-400'> (hidden)</span>}
+                    {link.title}{link.badge && <Badge label={link.badge} />}{String(link.active) !== 'true' ? <span className='text-zinc-400'> (hidden)</span> : <ScheduleNote link={link} />}
                     <span className='text-zinc-400 text-sm'> · {(link.url || "").replace(/^https?:\/\//, '').substring(0,30)}</span>
                   </p>
                   <div className='flex items-center pr-2'>
@@ -281,6 +299,28 @@ function User({ session, handleSignOut, links }){
   )
 }
 
+
+// "(starts Nov 3)" or "(ended)" next to links with a schedule
+function ScheduleNote({ link }){
+  const now = Date.now();
+  const format = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (link.startAt && new Date(link.startAt) > now) return <span className='text-zinc-400'> (starts {format(link.startAt)})</span>;
+  if (link.endAt && new Date(link.endAt) <= now) return <span className='text-zinc-400'> (ended)</span>;
+  if (link.endAt) return <span className='text-zinc-400'> (until {format(link.endAt)})</span>;
+  return null;
+}
+
+// stored time -> value for a datetime-local input, in the browser's time zone
+function toLocalInput(value){
+  if (!value) return '';
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+// datetime-local input value -> exact time, or null when empty
+function fromLocalInput(value){
+  return value ? new Date(value).toISOString() : null;
+}
 
 export const getServerSideProps = async ({req, res}) =>{
 
